@@ -18,20 +18,13 @@
  */
 package com.judge40.gridgenerator;
 
-import javafx.application.Application;
-import javafx.scene.Scene;
-import javafx.scene.layout.BorderPane;
-import javafx.stage.Stage;
-
 /**
- * An application for organizing race competitors in to randomized starting grids.
+ * A launcher for {@link GridGenerator}, allows execution without a JavaFX SDK installation being
+ * required.
  */
-public class GridGenerator extends Application {
+public class GridGeneratorLauncher {
 
-  @Override
-  public void start(Stage primaryStage) {
-    primaryStage.setTitle("Grid Generator");
-    primaryStage.setScene(new Scene(new BorderPane(), 300, 300));
-    primaryStage.show();
+  public static void main(String[] args) {
+    GridGenerator.launch(GridGenerator.class, args);
   }
 }

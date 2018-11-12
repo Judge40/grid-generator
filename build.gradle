@@ -1,12 +1,52 @@
 plugins {
-    id "java"
+    id "application"
+    id "com.google.osdetector" version "1.6.0"
+}
+
+mainClassName = "com.judge40.gridgenerator.GridGeneratorLauncher"
+sourceCompatibility = JavaVersion.VERSION_11
+
+ext.platform = osdetector.os == "osx" ? "mac"
+        : osdetector.os == "windows" ? "win"
+        : osdetector.os
+
+compileJava {
+    doFirst {
+        options.compilerArgs = [
+                "--module-path", classpath.asPath,
+                "--add-modules", "javafx.controls"
+        ]
+    }
 }
 
 dependencies {
-    // JUnit dependency.
-    testImplementation "junit:junit:4.12"
+    // JavaFX dependencies.
+    implementation "org.openjfx:javafx-base:11:$platform"
+    implementation "org.openjfx:javafx-controls:11:$platform"
+    implementation "org.openjfx:javafx-graphics:11:$platform"
+
+    // JMockit dependency.
+    testImplementation "org.jmockit:jmockit:1.42"
+
+    // JUnit dependencies.
+    testImplementation "org.junit.jupiter:junit-jupiter-api:5.3.1"
+    testRuntimeOnly "org.junit.jupiter:junit-jupiter-engine:5.3.1"
 }
 
 repositories {
     jcenter()
+}
+
+run {
+    doFirst {
+        jvmArgs = [
+                "--module-path", classpath.asPath,
+                "--add-modules", "javafx.controls"
+        ]
+    }
+}
+
+test {
+    jvmArgs "-javaagent:${classpath.find {it.name.contains("jmockit")}.absolutePath}"
+    useJUnitPlatform()
 }

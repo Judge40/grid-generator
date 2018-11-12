@@ -18,20 +18,31 @@
  */
 package com.judge40.gridgenerator;
 
-import javafx.application.Application;
-import javafx.scene.Scene;
-import javafx.scene.layout.BorderPane;
-import javafx.stage.Stage;
+import mockit.Mocked;
+import mockit.Verifications;
+import org.junit.jupiter.api.Test;
 
 /**
- * An application for organizing race competitors in to randomized starting grids.
+ * The unit tests for {@link GridGeneratorLauncher}.
  */
-public class GridGenerator extends Application {
+public class GridGeneratorLauncherTest {
 
-  @Override
-  public void start(Stage primaryStage) {
-    primaryStage.setTitle("Grid Generator");
-    primaryStage.setScene(new Scene(new BorderPane(), 300, 300));
-    primaryStage.show();
+  /**
+   * Test that the arguments are passed to GridGenerator.
+   */
+  @Test
+  public void testMain_argsPassed(@Mocked GridGenerator gridGenerator) {
+    // Set up test data.
+    String[] args = new String[]{"arg1", "arg2"};
+
+    // Call the method under test.
+    GridGeneratorLauncher.main(args);
+
+    // Perform assertions.
+    new Verifications() {
+      {
+        GridGenerator.launch(GridGenerator.class, args);
+      }
+    };
   }
 }
