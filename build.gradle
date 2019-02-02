@@ -1,6 +1,7 @@
 plugins {
     id "application"
     id "com.google.osdetector" version "1.6.0"
+    id "jacoco"
 }
 
 mainClassName = "com.judge40.gridgenerator.GridGeneratorLauncher"
@@ -9,6 +10,10 @@ sourceCompatibility = JavaVersion.VERSION_11
 ext.platform = osdetector.os == "osx" ? "mac"
         : osdetector.os == "windows" ? "win"
         : osdetector.os
+
+check {
+    dependsOn jacocoTestReport
+}
 
 compileJava {
     doFirst {
@@ -31,6 +36,19 @@ dependencies {
     // JUnit dependencies.
     testImplementation "org.junit.jupiter:junit-jupiter-api:5.3.1"
     testRuntimeOnly "org.junit.jupiter:junit-jupiter-engine:5.3.1"
+}
+
+jacoco {
+    reportsDir = file("$buildDir/reports/coverage/")
+}
+
+jacocoTestReport {
+    reports {
+        html.enabled true
+        html.destination file("$jacoco.reportsDir")
+        xml.enabled true
+        xml.destination file("$jacoco.reportsDir/jacocoTestReport.xml")
+    }
 }
 
 repositories {
