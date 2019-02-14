@@ -24,10 +24,15 @@ compileJava {
     }
 }
 
+compileTestJava {
+    options.encoding = "UTF-8"
+}
+
 dependencies {
     // JavaFX dependencies.
     implementation "org.openjfx:javafx-base:11:$platform"
     implementation "org.openjfx:javafx-controls:11:$platform"
+    implementation "org.openjfx:javafx-fxml:11:$platform"
     implementation "org.openjfx:javafx-graphics:11:$platform"
 
     // JMockit dependency.
@@ -36,6 +41,10 @@ dependencies {
     // JUnit dependencies.
     testImplementation "org.junit.jupiter:junit-jupiter-api:5.3.1"
     testRuntimeOnly "org.junit.jupiter:junit-jupiter-engine:5.3.1"
+
+    // TestFX dependencies.
+    testImplementation "org.testfx:testfx-core:4.0.15-alpha"
+    testImplementation "org.testfx:testfx-junit5:4.0.15-alpha"
 }
 
 jacoco {
@@ -45,7 +54,7 @@ jacoco {
 jacocoTestReport {
     reports {
         html.enabled true
-        html.destination file("$jacoco.reportsDir")
+        html.destination file("$jacoco.reportsDir/html/")
         xml.enabled true
         xml.destination file("$jacoco.reportsDir/jacocoTestReport.xml")
     }

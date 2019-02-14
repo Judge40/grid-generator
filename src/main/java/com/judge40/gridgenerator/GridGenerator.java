@@ -18,7 +18,10 @@
  */
 package com.judge40.gridgenerator;
 
+import java.io.IOException;
+import java.util.ResourceBundle;
 import javafx.application.Application;
+import javafx.fxml.FXMLLoader;
 import javafx.scene.Scene;
 import javafx.scene.layout.BorderPane;
 import javafx.stage.Stage;
@@ -29,9 +32,13 @@ import javafx.stage.Stage;
 public class GridGenerator extends Application {
 
   @Override
-  public void start(Stage primaryStage) {
+  public void start(Stage primaryStage) throws IOException {
+    ResourceBundle labelsBundle = ResourceBundle.getBundle("i18n.Labels");
+    BorderPane main = FXMLLoader
+        .load(getClass().getResource("/fxml/GridGenerator.fxml"), labelsBundle);
+
     primaryStage.setTitle("Grid Generator");
-    primaryStage.setScene(new Scene(new BorderPane(), 300, 300));
+    primaryStage.setScene(new Scene(main));
     primaryStage.show();
   }
 }
