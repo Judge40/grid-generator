@@ -53,12 +53,12 @@ public class GridGeneratorTest {
   }
 
   /**
-   * Test that the stage title is set to "Grid Generator" when the locale is en-GB.
+   * Test that the stage title is set to "Grid Generator" when the locale is English.
    */
   @Test
-  public void testStart_enGb_titleGridGenerator(FxRobot robot) {
+  public void testStart_en_titleGridGenerator(FxRobot robot) {
     // Set up test scenario.
-    Locale.setDefault(new Locale("en", "GB"));
+    Locale.setDefault(Locale.ENGLISH);
 
     // Call the method under test.
     robot.interact(() -> {
@@ -71,16 +71,16 @@ public class GridGeneratorTest {
 
     // Perform assertions.
     MatcherAssert.assertThat("The stage's title did not match the expected value.",
-        stage.getTitle(), CoreMatchers.is("Grid Generator"));
+      stage.getTitle(), CoreMatchers.is("Grid Generator"));
   }
 
   /**
-   * Test that the "File" menu is available on the dialog when the locale is en-GB.
+   * Test that the "File" menu is available on the dialog when the locale is English.
    */
   @Test
-  public void testStart_enGb_hasFileMenu(FxRobot robot) {
+  public void testStart_en_hasFileMenu(FxRobot robot) {
     // Set up test scenario.
-    Locale.setDefault(new Locale("en", "GB"));
+    Locale.setDefault(Locale.ENGLISH);
 
     // Call the method under test.
     robot.interact(() -> {
@@ -98,12 +98,12 @@ public class GridGeneratorTest {
   }
 
   /**
-   * Test that the "Exit" menu is available on the dialog when the locale is en-GB.
+   * Test that the "Exit" menu is available on the dialog when the locale is English.
    */
   @Test
-  public void testStart_enGb_hasExitMenuItem(FxRobot robot) {
+  public void testStart_en_hasExitMenuItem(FxRobot robot) {
     // Set up test scenario.
-    Locale.setDefault(new Locale("en", "GB"));
+    Locale.setDefault(Locale.ENGLISH);
 
     // Call the method under test.
     robot.interact(() -> {
@@ -117,23 +117,23 @@ public class GridGeneratorTest {
     // Perform assertions.
     MenuBarButton menuBarButton = (MenuBarButton) stage.getScene().lookup("#fileMenu");
     MenuItem menuItem = menuBarButton.menu.getItems().stream()
-        .filter(child -> child.getId().equals("exitMenuItem")).findFirst().get();
+      .filter(child -> child.getId().equals("exitMenuItem")).findFirst().get();
 
     MatcherAssert.assertThat("The menu item's visibility did not match the expected value.",
-        menuItem.isVisible(), CoreMatchers.is(true));
+      menuItem.isVisible(), CoreMatchers.is(true));
     MatcherAssert.assertThat("The menu item's enabled state did not match the expected value.",
-        menuItem.isDisable(), CoreMatchers.is(false));
+      menuItem.isDisable(), CoreMatchers.is(false));
     MatcherAssert.assertThat("The menu item's text  did not match the expected value.",
-        menuItem.getText(), CoreMatchers.is("Exit"));
+      menuItem.getText(), CoreMatchers.is("Exit"));
   }
 
   /**
-   * Test that the "Input Participants" menu is available on the dialog when the locale is en-GB.
+   * Test that the "Navigate" menu is available on the dialog when the locale is English.
    */
   @Test
-  public void testStart_enGb_hasInputParticipantsMenuItem(FxRobot robot) {
+  public void testStart_en_hasNavigateMenu(FxRobot robot) {
     // Set up test scenario.
-    Locale.setDefault(new Locale("en", "GB"));
+    Locale.setDefault(Locale.ENGLISH);
 
     // Call the method under test.
     robot.interact(() -> {
@@ -145,18 +145,19 @@ public class GridGeneratorTest {
     });
 
     // Perform assertions.
-    FxAssert.verifyThat("#inputParticipantsMenuItem", NodeMatchers.isVisible());
-    FxAssert.verifyThat("#inputParticipantsMenuItem", NodeMatchers.isEnabled());
-    FxAssert.verifyThat("#inputParticipantsMenuItem", LabeledMatchers.hasText("Input Drivers"));
+    FxAssert.verifyThat("#navigateMenu", NodeMatchers.isVisible());
+    FxAssert.verifyThat("#navigateMenu", NodeMatchers.isEnabled());
+    FxAssert.verifyThat("#navigateMenu", LabeledMatchers.hasText("Navigate"));
   }
 
+
   /**
-   * Test that the "Draw Grids" menu item is available on the dialog when the locale is en-GB.
+   * Test that the "Input Participants" menu is available on the dialog when the locale is English.
    */
   @Test
-  public void testStart_enGb_hasDrawGridsMenuItem(FxRobot robot) {
+  public void testStart_en_hasInputParticipantsMenuItem(FxRobot robot) {
     // Set up test scenario.
-    Locale.setDefault(new Locale("en", "GB"));
+    Locale.setDefault(Locale.ENGLISH);
 
     // Call the method under test.
     robot.interact(() -> {
@@ -168,13 +169,50 @@ public class GridGeneratorTest {
     });
 
     // Perform assertions.
-    FxAssert.verifyThat("#drawGridsMenuItem", NodeMatchers.isVisible());
-    FxAssert.verifyThat("#drawGridsMenuItem", NodeMatchers.isEnabled());
-    FxAssert.verifyThat("#drawGridsMenuItem", LabeledMatchers.hasText("Draw Grids"));
+    MenuBarButton menuBarButton = (MenuBarButton) stage.getScene().lookup("#navigateMenu");
+    MenuItem menuItem = menuBarButton.menu.getItems().stream()
+      .filter(child -> child.getId().equals("inputParticipantsMenuItem")).findFirst().get();
+
+    MatcherAssert.assertThat("The menu item's visibility did not match the expected value.",
+      menuItem.isVisible(), CoreMatchers.is(true));
+    MatcherAssert.assertThat("The menu item's enabled state did not match the expected value.",
+      menuItem.isDisable(), CoreMatchers.is(false));
+    MatcherAssert.assertThat("The menu item's text  did not match the expected value.",
+      menuItem.getText(), CoreMatchers.is("Input Drivers"));
   }
 
   /**
-   * Test that the stage title is set to "Grid Generator" when the locale is en-GB.
+   * Test that the "Draw Grids" menu item is available on the dialog when the locale is English.
+   */
+  @Test
+  public void testStart_en_hasDrawGridsMenuItem(FxRobot robot) {
+    // Set up test scenario.
+    Locale.setDefault(Locale.ENGLISH);
+
+    // Call the method under test.
+    robot.interact(() -> {
+      try {
+        gridGenerator.start(stage);
+      } catch (IOException e) {
+        Assertions.fail("An unexpected exception was thrown.", e);
+      }
+    });
+
+    // Perform assertions.
+    MenuBarButton menuBarButton = (MenuBarButton) stage.getScene().lookup("#navigateMenu");
+    MenuItem menuItem = menuBarButton.menu.getItems().stream()
+      .filter(child -> child.getId().equals("drawGridsMenuItem")).findFirst().get();
+
+    MatcherAssert.assertThat("The menu item's visibility did not match the expected value.",
+      menuItem.isVisible(), CoreMatchers.is(true));
+    MatcherAssert.assertThat("The menu item's enabled state did not match the expected value.",
+      menuItem.isDisable(), CoreMatchers.is(false));
+    MatcherAssert.assertThat("The menu item's text  did not match the expected value.",
+      menuItem.getText(), CoreMatchers.is("Draw Grids"));
+  }
+
+  /**
+   * Test that the stage title is set to "Grid Generator" when the locale is English.
    */
   @Test
   public void testStart_enPseudo_titleGridGenerator(FxRobot robot) {
@@ -192,7 +230,7 @@ public class GridGeneratorTest {
 
     // Perform assertions.
     MatcherAssert.assertThat("The stage's title did not match the expected value.",
-        stage.getTitle(), CoreMatchers.is("Grid Generator"));
+      stage.getTitle(), CoreMatchers.is("Grid Generator"));
   }
 
   /**
@@ -238,14 +276,37 @@ public class GridGeneratorTest {
     // Perform assertions.
     MenuBarButton menuBarButton = (MenuBarButton) stage.getScene().lookup("#fileMenu");
     MenuItem menuItem = menuBarButton.menu.getItems().stream()
-        .filter(child -> child.getId().equals("exitMenuItem")).findFirst().get();
+      .filter(child -> child.getId().equals("exitMenuItem")).findFirst().get();
 
     MatcherAssert.assertThat("The menu item's visibility did not match the expected value.",
-        menuItem.isVisible(), CoreMatchers.is(true));
+      menuItem.isVisible(), CoreMatchers.is(true));
     MatcherAssert.assertThat("The menu item's enabled state did not match the expected value.",
-        menuItem.isDisable(), CoreMatchers.is(false));
+      menuItem.isDisable(), CoreMatchers.is(false));
     MatcherAssert.assertThat("The menu item's text  did not match the expected value.",
-        menuItem.getText(), CoreMatchers.is("[!!! Éжïƭ  !!!]"));
+      menuItem.getText(), CoreMatchers.is("[!!! Éжïƭ  !!!]"));
+  }
+
+  /**
+   * Test that the "Navigate" menu is available on the dialog when the locale is en-PSEUDO.
+   */
+  @Test
+  public void testStart_enPseudo_hasNavigateMenu(FxRobot robot) {
+    // Set up test scenario.
+    Locale.setDefault(new Locale("en", "PSEUDO"));
+
+    // Call the method under test.
+    robot.interact(() -> {
+      try {
+        gridGenerator.start(stage);
+      } catch (IOException e) {
+        Assertions.fail("An unexpected exception was thrown.", e);
+      }
+    });
+
+    // Perform assertions.
+    FxAssert.verifyThat("#navigateMenu", NodeMatchers.isVisible());
+    FxAssert.verifyThat("#navigateMenu", NodeMatchers.isEnabled());
+    FxAssert.verifyThat("#navigateMenu", LabeledMatchers.hasText("[!!! NáƲïϱáƭè ℓ !!!]"));
   }
 
   /**
@@ -267,10 +328,16 @@ public class GridGeneratorTest {
     });
 
     // Perform assertions.
-    FxAssert.verifyThat("#inputParticipantsMenuItem", NodeMatchers.isVisible());
-    FxAssert.verifyThat("#inputParticipantsMenuItem", NodeMatchers.isEnabled());
-    FxAssert.verifyThat("#inputParticipantsMenuItem",
-        LabeledMatchers.hasText("[!!! Ìñƥúƭ ÐřïƲèřƨ ℓôř !!!]"));
+    MenuBarButton menuBarButton = (MenuBarButton) stage.getScene().lookup("#navigateMenu");
+    MenuItem menuItem = menuBarButton.menu.getItems().stream()
+      .filter(child -> child.getId().equals("inputParticipantsMenuItem")).findFirst().get();
+
+    MatcherAssert.assertThat("The menu item's visibility did not match the expected value.",
+      menuItem.isVisible(), CoreMatchers.is(true));
+    MatcherAssert.assertThat("The menu item's enabled state did not match the expected value.",
+      menuItem.isDisable(), CoreMatchers.is(false));
+    MatcherAssert.assertThat("The menu item's text  did not match the expected value.",
+      menuItem.getText(), CoreMatchers.is("[!!! Ìñƥúƭ ÐřïƲèřƨ ℓôř !!!]"));
   }
 
   /**
@@ -291,8 +358,15 @@ public class GridGeneratorTest {
     });
 
     // Perform assertions.
-    FxAssert.verifyThat("#drawGridsMenuItem", NodeMatchers.isVisible());
-    FxAssert.verifyThat("#drawGridsMenuItem", NodeMatchers.isEnabled());
-    FxAssert.verifyThat("#drawGridsMenuItem", LabeledMatchers.hasText("[!!! Ðřáω Gřïδƨ ℓô !!!]"));
+    MenuBarButton menuBarButton = (MenuBarButton) stage.getScene().lookup("#navigateMenu");
+    MenuItem menuItem = menuBarButton.menu.getItems().stream()
+      .filter(child -> child.getId().equals("drawGridsMenuItem")).findFirst().get();
+
+    MatcherAssert.assertThat("The menu item's visibility did not match the expected value.",
+      menuItem.isVisible(), CoreMatchers.is(true));
+    MatcherAssert.assertThat("The menu item's enabled state did not match the expected value.",
+      menuItem.isDisable(), CoreMatchers.is(false));
+    MatcherAssert.assertThat("The menu item's text  did not match the expected value.",
+      menuItem.getText(), CoreMatchers.is("[!!! Ðřáω Gřïδƨ ℓô !!!]"));
   }
 }

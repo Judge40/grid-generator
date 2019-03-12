@@ -5,14 +5,19 @@
 <?import javafx.scene.control.MenuItem?>
 <?import javafx.scene.layout.BorderPane?>
 
-<BorderPane xmlns="http://javafx.com/javafx/10.0.1">
+<BorderPane xmlns="http://javafx.com/javafx/10.0.1" xmlns:fx="http://javafx.com/fxml/1"
+    fx:controller="com.judge40.gridgenerator.controller.GridGeneratorController">
     <top>
         <MenuBar>
             <Menu id="fileMenu" text="%menu.file">
-                <MenuItem id="exitMenuItem" text="%menu.item.exit"/>
+                <MenuItem id="exitMenuItem" onAction="#exit" text="%menu.item.exit"/>
             </Menu>
-            <Menu id="inputParticipantsMenuItem" text="%menu.item.inputParticipants"/>
-            <Menu id="drawGridsMenuItem" text="%menu.item.drawGrids"/>
+            <Menu id="navigateMenu" text="%menu.navigate">
+                <MenuItem id="inputParticipantsMenuItem" onAction="#displayInputParticipants"
+                    text="%menu.item.inputParticipants"/>
+                <MenuItem id="drawGridsMenuItem" onAction="#displayDrawGrids"
+                    text="%menu.item.drawGrids"/>
+            </Menu>
         </MenuBar>
     </top>
 </BorderPane>
