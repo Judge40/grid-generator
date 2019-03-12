@@ -44,6 +44,7 @@ dependencies {
     testRuntimeOnly "org.junit.jupiter:junit-jupiter-engine:5.3.1"
 
     // TestFX dependencies.
+    testImplementation "org.testfx:openjfx-monocle:jdk-11+26"
     testImplementation "org.testfx:testfx-core:4.0.15-alpha"
     testImplementation "org.testfx:testfx-junit5:4.0.15-alpha"
 }
@@ -75,6 +76,9 @@ run {
 }
 
 test {
-    jvmArgs "-javaagent:${classpath.find {it.name.contains("jmockit")}.absolutePath}"
+    jvmArgs = [
+            "-javaagent:${classpath.find {it.name.contains("jmockit")}.absolutePath}",
+            "-Dtestfx.headless=true"
+    ]
     useJUnitPlatform()
 }
