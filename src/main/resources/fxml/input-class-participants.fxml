@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.ListView?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.VBox?>
+<VBox xmlns:fx="http://javafx.com/fxml/1" xmlns="http://javafx.com/javafx/10.0.1"
+    fx:controller="com.judge40.gridgenerator.controller.InputClassParticipantsController">
+    <HBox>
+        <TextField onAction="#addParticipant" promptText="Enter driver..."
+            fx:id="newParticipantInput"/>
+        <Button onAction="#addParticipant" text="%button.add" fx:id="addButton"/>
+    </HBox>
+    <HBox>
+        <ListView fx:id="participantsDisplay"/>
+        <VBox>
+            <Button maxWidth="Infinity" onAction="#deleteParticipant" text="%button.delete"
+                fx:id="deleteButton"/>
+            <Button maxWidth="Infinity" onAction="#clearParticipants" text="%button.clear"
+                fx:id="clearButton"/>
+        </VBox>
+    </HBox>
+</VBox>
