@@ -26,6 +26,9 @@ import javafx.collections.ObservableList;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
+import javafx.scene.control.ButtonType;
+import javafx.scene.control.DialogPane;
+import javafx.scene.control.Label;
 import javafx.scene.control.ListView;
 import javafx.scene.control.MultipleSelectionModel;
 import javafx.scene.control.TextField;
@@ -69,14 +72,14 @@ class InputClassParticipantsControllerTest {
     defaultLocale = Locale.getDefault();
   }
 
-  @AfterAll
-  static void tearDownAfterAll() {
-    Locale.setDefault(defaultLocale);
-  }
-
   @Start
   void setUp(Stage stage) {
     this.stage = stage;
+  }
+
+  @AfterAll
+  static void tearDownAfterAll() {
+    Locale.setDefault(defaultLocale);
   }
 
   /**
@@ -601,11 +604,108 @@ class InputClassParticipantsControllerTest {
   }
 
   /**
-   * Test that the displayed participants are cleared when the clear action is triggered.
+   * Test that a confirmation dialog is displayed in English when the clear action is triggered and
+   * the locale is English.
    */
   @Test
-  void testClearParticipants_participantsDisplayed_noParticipantsDisplayed(FxRobot robot)
+  void testClearParticipants_en_englishConfirmationDialog(FxRobot robot) throws IOException {
+    // Set up test scenario.
+    Locale.setDefault(Locale.ENGLISH);
+    ResourceBundle labelsBundle = ResourceBundle.getBundle("i18n.Labels");
+
+    VBox inputClassParticipants = FXMLLoader
+      .load(getClass().getResource("/fxml/input-class-participants.fxml"), labelsBundle);
+    Scene scene = new Scene(inputClassParticipants);
+
+    robot.interact(() -> {
+      stage.setScene(scene);
+      stage.show();
+    });
+
+    ObservableList<String> participants = ((ListView<String>) scene.lookup(PARTICIPANTS_DISPLAY))
+      .getItems();
+    participants.addAll("participant1", "participant2", "participant3");
+
+    // Call the code under test.
+    robot.clickOn(CLEAR_BUTTON);
+
+    // Perform assertions.
+    String expectedDialogMessage = "All participants will be cleared, this cannot be undone.";
+    Label dialogMessage = robot.lookup(expectedDialogMessage).query();
+    DialogPane dialog = (DialogPane) dialogMessage.getParent();
+
+    MatcherAssert.assertThat("The dialog's header text did not match the expected value.",
+      dialog.getHeaderText(), CoreMatchers.is("Confirmation"));
+    MatcherAssert.assertThat("The dialog's content text did not match the expected value.",
+      dialog.getContentText(), CoreMatchers.is(expectedDialogMessage));
+
+    ObservableList<ButtonType> buttonTypes = dialog.getButtonTypes();
+    MatcherAssert.assertThat("The number of buttons did not match the expected value.",
+      buttonTypes.size(), CoreMatchers.is(2));
+    MatcherAssert.assertThat("The button type did not match the expected value.",
+      buttonTypes.get(0), CoreMatchers.is(ButtonType.OK));
+    MatcherAssert.assertThat("The button type did not match the expected value.",
+      buttonTypes.get(1), CoreMatchers.is(ButtonType.CANCEL));
+
+    // Perform clean up.
+    robot.clickOn("Cancel");
+  }
+
+  /**
+   * Test that a confirmation dialog is displayed in Pseudo English when the clear action is
+   * triggered and the locale is Pseudo English.
+   */
+  @Test
+  void testClearParticipants_enPseudo_pseudoEnglishConfirmationDialog(FxRobot robot)
       throws IOException {
+    // Set up test scenario.
+    Locale.setDefault(new Locale("en", "PSEUDO"));
+    ResourceBundle labelsBundle = ResourceBundle.getBundle("i18n.Labels");
+
+    VBox inputClassParticipants = FXMLLoader
+      .load(getClass().getResource("/fxml/input-class-participants.fxml"), labelsBundle);
+    Scene scene = new Scene(inputClassParticipants);
+
+    robot.interact(() -> {
+      stage.setScene(scene);
+      stage.show();
+    });
+
+    ObservableList<String> participants = ((ListView<String>) scene.lookup(PARTICIPANTS_DISPLAY))
+      .getItems();
+    participants.addAll("participant1", "participant2", "participant3");
+
+    // Call the code under test.
+    robot.clickOn(CLEAR_BUTTON);
+
+    // Perform assertions.
+    String expectedDialogMessage = "[!!! Âℓℓ ƥářƭïçïƥáñƭƨ ωïℓℓ βè çℓèářèδ, ƭλïƨ çáññôƭ βè úñδôñè. ℓôřè₥ ïƥƨú₥ δôℓô !!!]";
+    Label dialogMessage = robot.lookup(expectedDialogMessage).query();
+    DialogPane dialog = (DialogPane) dialogMessage.getParent();
+
+    MatcherAssert.assertThat("The dialog's header text did not match the expected value.",
+      dialog.getHeaderText(), CoreMatchers.is("Confirmation"));
+    MatcherAssert.assertThat("The dialog's content text did not match the expected value.",
+      dialog.getContentText(), CoreMatchers.is(expectedDialogMessage));
+
+    ObservableList<ButtonType> buttonTypes = dialog.getButtonTypes();
+    MatcherAssert.assertThat("The number of buttons did not match the expected value.",
+      buttonTypes.size(), CoreMatchers.is(2));
+    MatcherAssert.assertThat("The button type did not match the expected value.",
+      buttonTypes.get(0), CoreMatchers.is(ButtonType.OK));
+    MatcherAssert.assertThat("The button type did not match the expected value.",
+      buttonTypes.get(1), CoreMatchers.is(ButtonType.CANCEL));
+
+    // Perform clean up.
+    robot.clickOn("Cancel");
+  }
+
+  /**
+   * Test that the displayed participants are not cleared when the clear action is triggered and the
+   * confirmation is cancelled.
+   */
+  @Test
+  void testClearParticipants_cancel_participantsNotCleared(FxRobot robot) throws IOException {
     // Set up test scenario.
     ResourceBundle labelsBundle = ResourceBundle.getBundle("i18n.Labels");
 
@@ -624,6 +724,39 @@ class InputClassParticipantsControllerTest {
 
     // Call the code under test.
     robot.clickOn(CLEAR_BUTTON);
+    robot.clickOn("Cancel");
+
+    // Perform assertions.
+    MatcherAssert.assertThat(
+      "The number of items in the participants display did not match the expected value.",
+      participants.size(), CoreMatchers.is(3));
+  }
+
+  /**
+   * Test that the displayed participants are cleared when the clear action is triggered and the
+   * confirmation is confirmed.
+   */
+  @Test
+  void testClearParticipants_ok_participantsCleared(FxRobot robot) throws IOException {
+    // Set up test scenario.
+    ResourceBundle labelsBundle = ResourceBundle.getBundle("i18n.Labels");
+
+    VBox inputClassParticipants = FXMLLoader
+      .load(getClass().getResource("/fxml/input-class-participants.fxml"), labelsBundle);
+    Scene scene = new Scene(inputClassParticipants);
+
+    robot.interact(() -> {
+      stage.setScene(scene);
+      stage.show();
+    });
+
+    ObservableList<String> participants = ((ListView<String>) scene.lookup(PARTICIPANTS_DISPLAY))
+      .getItems();
+    participants.addAll("participant1", "participant2", "participant3");
+
+    // Call the code under test.
+    robot.clickOn(CLEAR_BUTTON);
+    robot.clickOn("OK");
 
     // Perform assertions.
     MatcherAssert.assertThat(

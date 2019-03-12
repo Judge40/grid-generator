@@ -23,7 +23,11 @@ import java.text.MessageFormat;
 import java.util.ResourceBundle;
 import javafx.collections.ListChangeListener;
 import javafx.fxml.FXML;
+import javafx.scene.control.Alert;
+import javafx.scene.control.Alert.AlertType;
 import javafx.scene.control.Button;
+import javafx.scene.control.ButtonType;
+import javafx.scene.control.Dialog;
 import javafx.scene.control.ListView;
 import javafx.scene.control.TextField;
 import javafx.scene.text.Text;
@@ -91,8 +95,13 @@ public class InputClassParticipantsController {
 
   @FXML
   private void clearParticipants() {
-    // TODO: prompt for confirmation.
-    participantsDisplay.getItems().clear();
+    String confirmationMessage = messageBundle.getString("participant.clear.confirm");
+    Alert clearConfirmation = new Alert(AlertType.CONFIRMATION, confirmationMessage);
+    ButtonType result = clearConfirmation.showAndWait().orElse(ButtonType.CANCEL);
+
+    if (result.equals(ButtonType.OK)) {
+      participantsDisplay.getItems().clear();
+    }
   }
 
   @FXML
