@@ -86,6 +86,7 @@ public class InputClassParticipantsController {
 
     participantsDisplay.getItems().add(newParticipant);
     newParticipantInput.clear();
+    errorMessageDisplay.setText("");
   }
 
   @FXML

@@ -481,11 +481,13 @@ class InputClassParticipantsControllerTest {
     TextField newParticipantInput = (TextField) scene.lookup(NEW_PARTICIPANT_INPUT);
     newParticipantInput.setText("A1");
 
+    Text errorMessageDisplay = (Text) scene.lookup(ERROR_MESSAGE_DISPLAY);
+    errorMessageDisplay.setText("errorMessage");
+
     // Call the code under test.
     robot.clickOn(trigger, MouseButton.MIDDLE).push(KeyCode.ENTER);
 
     // Perform assertions.
-    Text errorMessageDisplay = (Text) scene.lookup(ERROR_MESSAGE_DISPLAY);
     MatcherAssert
       .assertThat("The error text did not match the expected value.", errorMessageDisplay.getText(),
         CoreMatchers.is(""));
