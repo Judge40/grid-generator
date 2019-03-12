@@ -41,6 +41,8 @@ public class InputClassParticipantsController {
   private ListView<String> participantsDisplay;
   @FXML
   private TextField newParticipantInput;
+  @FXML
+  private Text errorMessageDisplay;
 
   @FXML
   private Button addButton;
@@ -48,8 +50,6 @@ public class InputClassParticipantsController {
   private Button clearButton;
   @FXML
   private Button deleteButton;
-
-  Text errorMessageDisplay;
 
   /**
    * Initialize the elements used by this controller.
@@ -102,7 +102,7 @@ public class InputClassParticipantsController {
 
 
   /**
-   * Displays an error message using the most suitable method available.
+   * Displays an error message.
    *
    * @param errorMessageKey The resource bundle key for the error message to display.
    * @param parameters The parameters to be added to the message.
@@ -110,13 +110,7 @@ public class InputClassParticipantsController {
   private void error(String errorMessageKey, Object... parameters) {
     String errorMessage = messageBundle.getString(errorMessageKey);
     errorMessage = MessageFormat.format(errorMessage, parameters);
-
-    if (errorMessageDisplay != null) {
-      errorMessageDisplay.setText(errorMessage);
-    } else {
-      // If there is no error message display there is no choice but to throw an exception.
-      throw new IllegalArgumentException(errorMessage);
-    }
+    errorMessageDisplay.setText(errorMessage);
   }
 
   /**

@@ -5,8 +5,11 @@
 <?import javafx.scene.control.TextField?>
 <?import javafx.scene.layout.HBox?>
 <?import javafx.scene.layout.VBox?>
+<?import javafx.scene.text.Text?>
+
 <VBox xmlns:fx="http://javafx.com/fxml/1" xmlns="http://javafx.com/javafx/10.0.1"
     fx:controller="com.judge40.gridgenerator.controller.InputClassParticipantsController">
+    <Text fx:id="errorMessageDisplay"/>
     <HBox>
         <TextField onAction="#addParticipant" promptText="Enter driver..."
             fx:id="newParticipantInput"/>

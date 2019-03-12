@@ -56,6 +56,7 @@ class InputClassParticipantsControllerTest {
   private static final String ADD_BUTTON = "#addButton";
   private static final String CLEAR_BUTTON = "#clearButton";
   private static final String DELETE_BUTTON = "#deleteButton";
+  private static final String ERROR_MESSAGE_DISPLAY = "#errorMessageDisplay";
   private static final String NEW_PARTICIPANT_INPUT = "#newParticipantInput";
   private static final String PARTICIPANTS_DISPLAY = "#participantsDisplay";
 
@@ -95,9 +96,9 @@ class InputClassParticipantsControllerTest {
     ResourceBundle labelsBundle = ResourceBundle.getBundle("i18n.Labels");
 
     // Call the code under test.
-    VBox inputParticipantsClass = FXMLLoader
+    VBox inputClassParticipants = FXMLLoader
       .load(getClass().getResource("/fxml/input-class-participants.fxml"), labelsBundle);
-    Scene scene = new Scene(inputParticipantsClass);
+    Scene scene = new Scene(inputClassParticipants);
 
     robot.interact(() -> {
       stage.setScene(scene);
@@ -130,9 +131,9 @@ class InputClassParticipantsControllerTest {
     ResourceBundle labelsBundle = ResourceBundle.getBundle("i18n.Labels");
 
     // Call the code under test.
-    VBox inputParticipantsClass = FXMLLoader
+    VBox inputClassParticipants = FXMLLoader
       .load(getClass().getResource("/fxml/input-class-participants.fxml"), labelsBundle);
-    Scene scene = new Scene(inputParticipantsClass);
+    Scene scene = new Scene(inputClassParticipants);
 
     robot.interact(() -> {
       stage.setScene(scene);
@@ -156,9 +157,9 @@ class InputClassParticipantsControllerTest {
     // Set up test scenario.
     ResourceBundle labelsBundle = ResourceBundle.getBundle("i18n.Labels");
 
-    VBox inputParticipantsClass = FXMLLoader
+    VBox inputClassParticipants = FXMLLoader
       .load(getClass().getResource("/fxml/input-class-participants.fxml"), labelsBundle);
-    Scene scene = new Scene(inputParticipantsClass);
+    Scene scene = new Scene(inputClassParticipants);
 
     robot.interact(() -> {
       stage.setScene(scene);
@@ -186,9 +187,9 @@ class InputClassParticipantsControllerTest {
     // Set up test scenario.
     ResourceBundle labelsBundle = ResourceBundle.getBundle("i18n.Labels");
 
-    VBox inputParticipantsClass = FXMLLoader
+    VBox inputClassParticipants = FXMLLoader
       .load(getClass().getResource("/fxml/input-class-participants.fxml"), labelsBundle);
-    Scene scene = new Scene(inputParticipantsClass);
+    Scene scene = new Scene(inputClassParticipants);
 
     robot.interact(() -> {
       stage.setScene(scene);
@@ -215,9 +216,9 @@ class InputClassParticipantsControllerTest {
     // Set up test scenario.
     ResourceBundle labelsBundle = ResourceBundle.getBundle("i18n.Labels");
 
-    VBox inputParticipantsClass = FXMLLoader
+    VBox inputClassParticipants = FXMLLoader
       .load(getClass().getResource("/fxml/input-class-participants.fxml"), labelsBundle);
-    Scene scene = new Scene(inputParticipantsClass);
+    Scene scene = new Scene(inputClassParticipants);
 
     robot.interact(() -> {
       stage.setScene(scene);
@@ -245,9 +246,9 @@ class InputClassParticipantsControllerTest {
     // Set up test scenario.
     ResourceBundle labelsBundle = ResourceBundle.getBundle("i18n.Labels");
 
-    VBox inputParticipantsClass = FXMLLoader
+    VBox inputClassParticipants = FXMLLoader
       .load(getClass().getResource("/fxml/input-class-participants.fxml"), labelsBundle);
-    Scene scene = new Scene(inputParticipantsClass);
+    Scene scene = new Scene(inputClassParticipants);
 
     robot.interact(() -> {
       stage.setScene(scene);
@@ -276,9 +277,9 @@ class InputClassParticipantsControllerTest {
     // Set up test scenario.
     ResourceBundle labelsBundle = ResourceBundle.getBundle("i18n.Labels");
 
-    VBox inputParticipantsClass = FXMLLoader
+    VBox inputClassParticipants = FXMLLoader
       .load(getClass().getResource("/fxml/input-class-participants.fxml"), labelsBundle);
-    Scene scene = new Scene(inputParticipantsClass);
+    Scene scene = new Scene(inputClassParticipants);
 
     robot.interact(() -> {
       stage.setScene(scene);
@@ -307,9 +308,9 @@ class InputClassParticipantsControllerTest {
     // Set up test scenario.
     ResourceBundle labelsBundle = ResourceBundle.getBundle("i18n.Labels");
 
-    VBox inputParticipantsClass = FXMLLoader
+    VBox inputClassParticipants = FXMLLoader
       .load(getClass().getResource("/fxml/input-class-participants.fxml"), labelsBundle);
-    Scene scene = new Scene(inputParticipantsClass);
+    Scene scene = new Scene(inputClassParticipants);
 
     robot.interact(() -> {
       stage.setScene(scene);
@@ -342,14 +343,9 @@ class InputClassParticipantsControllerTest {
     // Set up test scenario.
     ResourceBundle labelsBundle = ResourceBundle.getBundle("i18n.Labels");
 
-    FXMLLoader loader = new FXMLLoader(
-      getClass().getResource("/fxml/input-class-participants.fxml"), labelsBundle);
-    VBox inputParticipantsClass = loader.load();
-    Scene scene = new Scene(inputParticipantsClass);
-
-    InputClassParticipantsController controller = loader.getController();
-    Text errorText = new Text();
-    controller.errorMessageDisplay = errorText;
+    VBox inputClassParticipants = FXMLLoader
+      .load(getClass().getResource("/fxml/input-class-participants.fxml"), labelsBundle);
+    Scene scene = new Scene(inputClassParticipants);
 
     robot.interact(() -> {
       stage.setScene(scene);
@@ -360,8 +356,9 @@ class InputClassParticipantsControllerTest {
     robot.clickOn(trigger, MouseButton.MIDDLE).push(KeyCode.ENTER);
 
     // Perform assertions.
+    Text errorMessageDisplay = (Text) scene.lookup(ERROR_MESSAGE_DISPLAY);
     MatcherAssert
-      .assertThat("The error text did not match the expected value.", errorText.getText(),
+      .assertThat("The error text did not match the expected value.", errorMessageDisplay.getText(),
         CoreMatchers.is(""));
 
     TextField newParticipantInput = (TextField) scene.lookup(NEW_PARTICIPANT_INPUT);
@@ -377,24 +374,20 @@ class InputClassParticipantsControllerTest {
 
   /**
    * Test that the new participant is not added and an English error message is displayed when the
-   * input field is invalid, the locale is English and the add action is triggered.
+   * input field is invalid, the error message display is available, the locale is English and the
+   * add action is triggered.
    */
   @ParameterizedTest(name = "Error message should be displayed when the add action is triggered from \"{0}\"")
   @ValueSource(strings = {ADD_BUTTON, NEW_PARTICIPANT_INPUT})
-  void testAddParticipant_invalidInputEn_englishErrorMessage(String trigger, FxRobot robot)
-      throws IOException {
+  void testAddParticipant_invalidInputHasErrorDisplayEn_englishErrorMessage(String trigger,
+      FxRobot robot) throws IOException {
     // Set up test scenario.
     Locale.setDefault(Locale.ENGLISH);
     ResourceBundle labelsBundle = ResourceBundle.getBundle("i18n.Labels");
 
-    FXMLLoader loader = new FXMLLoader(
-      getClass().getResource("/fxml/input-class-participants.fxml"), labelsBundle);
-    VBox inputParticipantsClass = loader.load();
-    Scene scene = new Scene(inputParticipantsClass);
-
-    InputClassParticipantsController controller = loader.getController();
-    Text errorText = new Text();
-    controller.errorMessageDisplay = errorText;
+    VBox inputClassParticipants = FXMLLoader
+      .load(getClass().getResource("/fxml/input-class-participants.fxml"), labelsBundle);
+    Scene scene = new Scene(inputClassParticipants);
 
     robot.interact(() -> {
       stage.setScene(scene);
@@ -408,8 +401,9 @@ class InputClassParticipantsControllerTest {
     robot.clickOn(trigger, MouseButton.MIDDLE).push(KeyCode.ENTER);
 
     // Perform assertions.
+    Text errorMessageDisplay = (Text) scene.lookup(ERROR_MESSAGE_DISPLAY);
     MatcherAssert
-      .assertThat("The error text did not match the expected value.", errorText.getText(),
+      .assertThat("The error text did not match the expected value.", errorMessageDisplay.getText(),
         CoreMatchers.is("\"invalidInput\" is not a valid input."));
     MatcherAssert
       .assertThat("The input text did not match the expected value.", newParticipantInput.getText(),
@@ -423,24 +417,20 @@ class InputClassParticipantsControllerTest {
 
   /**
    * Test that the new participant is not added and a Pseudo English error message is displayed when
-   * the input field is invalid, the locale is Pseudo English and the add action is triggered.
+   * the input field is invalid, the error message display is available, the locale is Pseudo
+   * English and the add action is triggered.
    */
   @ParameterizedTest(name = "Error message should be displayed when the add action is triggered from \"{0}\"")
   @ValueSource(strings = {ADD_BUTTON, NEW_PARTICIPANT_INPUT})
-  void testAddParticipant_invalidInputEnPseudo_pseudoEnglishErrorMessage(String trigger,
-      FxRobot robot) throws IOException {
+  void testAddParticipant_invalidInputHasErrorDisplayEnPseudo_pseudoEnglishErrorMessage(
+      String trigger, FxRobot robot) throws IOException {
     // Set up test scenario.
     Locale.setDefault(new Locale("en", "PSEUDO"));
     ResourceBundle labelsBundle = ResourceBundle.getBundle("i18n.Labels");
 
-    FXMLLoader loader = new FXMLLoader(
-      getClass().getResource("/fxml/input-class-participants.fxml"), labelsBundle);
-    VBox inputParticipantsClass = loader.load();
-    Scene scene = new Scene(inputParticipantsClass);
-
-    InputClassParticipantsController controller = loader.getController();
-    Text errorText = new Text();
-    controller.errorMessageDisplay = errorText;
+    VBox inputClassParticipants = FXMLLoader
+      .load(getClass().getResource("/fxml/input-class-participants.fxml"), labelsBundle);
+    Scene scene = new Scene(inputClassParticipants);
 
     robot.interact(() -> {
       stage.setScene(scene);
@@ -454,8 +444,9 @@ class InputClassParticipantsControllerTest {
     robot.clickOn(trigger, MouseButton.MIDDLE).push(KeyCode.ENTER);
 
     // Perform assertions.
+    Text errorMessageDisplay = (Text) scene.lookup(ERROR_MESSAGE_DISPLAY);
     MatcherAssert
-      .assertThat("The error text did not match the expected value.", errorText.getText(),
+      .assertThat("The error text did not match the expected value.", errorMessageDisplay.getText(),
         CoreMatchers.is("[!!! \"invalidInput\" ïƨ ñôƭ á Ʋáℓïδ ïñƥúƭ. ℓôřè₥ ï !!!]"));
     MatcherAssert
       .assertThat("The input text did not match the expected value.", newParticipantInput.getText(),
@@ -478,14 +469,9 @@ class InputClassParticipantsControllerTest {
     // Set up test scenario.
     ResourceBundle labelsBundle = ResourceBundle.getBundle("i18n.Labels");
 
-    FXMLLoader loader = new FXMLLoader(
-      getClass().getResource("/fxml/input-class-participants.fxml"), labelsBundle);
-    VBox inputParticipantsClass = loader.load();
-    Scene scene = new Scene(inputParticipantsClass);
-
-    InputClassParticipantsController controller = loader.getController();
-    Text errorText = new Text();
-    controller.errorMessageDisplay = errorText;
+    VBox inputClassParticipants = FXMLLoader
+      .load(getClass().getResource("/fxml/input-class-participants.fxml"), labelsBundle);
+    Scene scene = new Scene(inputClassParticipants);
 
     robot.interact(() -> {
       stage.setScene(scene);
@@ -499,8 +485,9 @@ class InputClassParticipantsControllerTest {
     robot.clickOn(trigger, MouseButton.MIDDLE).push(KeyCode.ENTER);
 
     // Perform assertions.
+    Text errorMessageDisplay = (Text) scene.lookup(ERROR_MESSAGE_DISPLAY);
     MatcherAssert
-      .assertThat("The error text did not match the expected value.", errorText.getText(),
+      .assertThat("The error text did not match the expected value.", errorMessageDisplay.getText(),
         CoreMatchers.is(""));
     MatcherAssert
       .assertThat("The input text did not match the expected value.", newParticipantInput.getText(),
@@ -528,14 +515,9 @@ class InputClassParticipantsControllerTest {
     Locale.setDefault(Locale.ENGLISH);
     ResourceBundle labelsBundle = ResourceBundle.getBundle("i18n.Labels");
 
-    FXMLLoader loader = new FXMLLoader(
-      getClass().getResource("/fxml/input-class-participants.fxml"), labelsBundle);
-    VBox inputParticipantsClass = loader.load();
-    Scene scene = new Scene(inputParticipantsClass);
-
-    InputClassParticipantsController controller = loader.getController();
-    Text errorText = new Text();
-    controller.errorMessageDisplay = errorText;
+    VBox inputClassParticipants = FXMLLoader
+      .load(getClass().getResource("/fxml/input-class-participants.fxml"), labelsBundle);
+    Scene scene = new Scene(inputClassParticipants);
 
     robot.interact(() -> {
       stage.setScene(scene);
@@ -552,8 +534,9 @@ class InputClassParticipantsControllerTest {
     robot.clickOn(trigger, MouseButton.MIDDLE).push(KeyCode.ENTER);
 
     // Perform assertions.
+    Text errorMessageDisplay = (Text) scene.lookup(ERROR_MESSAGE_DISPLAY);
     MatcherAssert
-      .assertThat("The error text did not match the expected value.", errorText.getText(),
+      .assertThat("The error text did not match the expected value.", errorMessageDisplay.getText(),
         CoreMatchers.is("\"A1\" already exists."));
     MatcherAssert
       .assertThat("The input text did not match the expected value.", newParticipantInput.getText(),
@@ -580,14 +563,9 @@ class InputClassParticipantsControllerTest {
     Locale.setDefault(new Locale("en", "PSEUDO"));
     ResourceBundle labelsBundle = ResourceBundle.getBundle("i18n.Labels");
 
-    FXMLLoader loader = new FXMLLoader(
-      getClass().getResource("/fxml/input-class-participants.fxml"), labelsBundle);
-    VBox inputParticipantsClass = loader.load();
-    Scene scene = new Scene(inputParticipantsClass);
-
-    InputClassParticipantsController controller = loader.getController();
-    Text errorText = new Text();
-    controller.errorMessageDisplay = errorText;
+    VBox inputClassParticipants = FXMLLoader
+      .load(getClass().getResource("/fxml/input-class-participants.fxml"), labelsBundle);
+    Scene scene = new Scene(inputClassParticipants);
 
     robot.interact(() -> {
       stage.setScene(scene);
@@ -604,8 +582,9 @@ class InputClassParticipantsControllerTest {
     robot.clickOn(trigger, MouseButton.MIDDLE).push(KeyCode.ENTER);
 
     // Perform assertions.
+    Text errorMessageDisplay = (Text) scene.lookup(ERROR_MESSAGE_DISPLAY);
     MatcherAssert
-      .assertThat("The error text did not match the expected value.", errorText.getText(),
+      .assertThat("The error text did not match the expected value.", errorMessageDisplay.getText(),
         CoreMatchers.is("[!!! \"A1\" áℓřèáδ¥ èжïƨƭƨ. ℓôřè₥ !!!]"));
     MatcherAssert
       .assertThat("The input text did not match the expected value.", newParticipantInput.getText(),
@@ -628,9 +607,9 @@ class InputClassParticipantsControllerTest {
     // Set up test scenario.
     ResourceBundle labelsBundle = ResourceBundle.getBundle("i18n.Labels");
 
-    VBox inputParticipantsClass = FXMLLoader
+    VBox inputClassParticipants = FXMLLoader
       .load(getClass().getResource("/fxml/input-class-participants.fxml"), labelsBundle);
-    Scene scene = new Scene(inputParticipantsClass);
+    Scene scene = new Scene(inputClassParticipants);
 
     robot.interact(() -> {
       stage.setScene(scene);
@@ -659,9 +638,9 @@ class InputClassParticipantsControllerTest {
     // Set up test scenario.
     ResourceBundle labelsBundle = ResourceBundle.getBundle("i18n.Labels");
 
-    VBox inputParticipantsClass = FXMLLoader
+    VBox inputClassParticipants = FXMLLoader
       .load(getClass().getResource("/fxml/input-class-participants.fxml"), labelsBundle);
-    Scene scene = new Scene(inputParticipantsClass);
+    Scene scene = new Scene(inputClassParticipants);
 
     robot.interact(() -> {
       stage.setScene(scene);
