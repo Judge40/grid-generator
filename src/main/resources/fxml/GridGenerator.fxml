@@ -5,8 +5,8 @@
 <?import javafx.scene.control.MenuItem?>
 <?import javafx.scene.layout.BorderPane?>
 
-<BorderPane xmlns="http://javafx.com/javafx/10.0.1" xmlns:fx="http://javafx.com/fxml/1"
-    fx:controller="com.judge40.gridgenerator.controller.GridGeneratorController">
+<BorderPane xmlns:fx="http://javafx.com/fxml/1" xmlns="http://javafx.com/javafx/10.0.1"
+    fx:controller="com.judge40.gridgenerator.controller.GridGeneratorController" fx:id="mainLayout">
     <top>
         <MenuBar>
             <Menu id="fileMenu" text="%menu.file">

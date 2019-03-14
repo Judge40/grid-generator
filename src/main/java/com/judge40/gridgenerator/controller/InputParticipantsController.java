@@ -20,51 +20,39 @@
 package com.judge40.gridgenerator.controller;
 
 import java.io.IOException;
+import java.util.Arrays;
+import java.util.List;
 import java.util.ResourceBundle;
-import javafx.application.Platform;
+import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
+import javafx.scene.control.Tab;
 import javafx.scene.control.TabPane;
-import javafx.scene.layout.BorderPane;
-import javafx.stage.Stage;
-import javafx.stage.Window;
+import javafx.scene.layout.VBox;
 
 /**
- * An FXML controller controller for handling high level events, such as menu interaction.
+ * An FXML controller controller for participant management.
  */
-public class GridGeneratorController {
+public class InputParticipantsController {
+
+  private static final List<String> CLASS_NAMES = Arrays.asList("Class 1", "Class 2", "Class 3",
+    "Class 4", "Class 5", "Class 6", "Class 7", "Class 8", "Class 9", "Class 10");
 
   @FXML
-  private BorderPane mainLayout;
-
-  /**
-   * Display the Draw Grids interface.
-   */
-  @FXML
-  private void displayDrawGrids() {
-    System.out.println("Draw Grids not yet implemented.");
-  }
+  private TabPane inputParticipantLayout;
 
   /**
-   * Display the Input Participants interface.
+   * Initialize the elements used by this controller.
    */
-  @FXML
-  private void displayInputParticipants() throws IOException {
+  public void initialize() throws IOException {
     ResourceBundle labelsBundle = ResourceBundle.getBundle("i18n.Labels");
-    TabPane inputParticipants = FXMLLoader
-      .load(getClass().getResource("/fxml/input-participants.fxml"), labelsBundle);
-    mainLayout.setCenter(inputParticipants);
-  }
+    ObservableList<Tab> tabs = inputParticipantLayout.getTabs();
 
-  /**
-   * Exit the application.
-   */
-  @FXML
-  private void exit() {
-    for (Window window : Window.getWindows()) {
-      if (window instanceof Stage) {
-        Platform.runLater(((Stage) window)::close);
-      }
+    for (String className : CLASS_NAMES) {
+      VBox inputClassParticipants = FXMLLoader
+        .load(getClass().getResource("/fxml/input-class-participants.fxml"), labelsBundle);
+      Tab classTab = new Tab(className, inputClassParticipants);
+      tabs.add(classTab);
     }
   }
 }
