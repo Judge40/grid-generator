@@ -153,6 +153,58 @@ class InputClassParticipantsControllerTest {
   }
 
   /**
+   * Test that the input prompt has English text when it is initialized with the locale set to
+   * English.
+   */
+  @Test
+  void testInitialize_en_inputPromptTextEnglish(FxRobot robot) throws IOException {
+    // Set up test scenario.
+    Locale.setDefault(Locale.ENGLISH);
+    ResourceBundle labelsBundle = ResourceBundle.getBundle("i18n.Labels");
+
+    // Call the code under test.
+    VBox inputClassParticipants = FXMLLoader
+      .load(getClass().getResource("/fxml/input-class-participants.fxml"), labelsBundle);
+    Scene scene = new Scene(inputClassParticipants);
+
+    robot.interact(() -> {
+      stage.setScene(scene);
+      stage.show();
+    });
+
+    // Perform assertions.
+    TextField newParticipantInput = (TextField) scene.lookup(NEW_PARTICIPANT_INPUT);
+    MatcherAssert.assertThat("The input's prompt text did not match the expected value.",
+      newParticipantInput.getPromptText(), CoreMatchers.is("Enter driver..."));
+  }
+
+  /**
+   * Test that the input prompt has Pseudo English text when it is initialized with the locale set
+   * to Pseudo English.
+   */
+  @Test
+  void testInitialize_en_inputPromptTextPseudoEnglish(FxRobot robot) throws IOException {
+    // Set up test scenario.
+    Locale.setDefault(new Locale("en", "PSEUDO"));
+    ResourceBundle labelsBundle = ResourceBundle.getBundle("i18n.Labels");
+
+    // Call the code under test.
+    VBox inputClassParticipants = FXMLLoader
+      .load(getClass().getResource("/fxml/input-class-participants.fxml"), labelsBundle);
+    Scene scene = new Scene(inputClassParticipants);
+
+    robot.interact(() -> {
+      stage.setScene(scene);
+      stage.show();
+    });
+
+    // Perform assertions.
+    TextField newParticipantInput = (TextField) scene.lookup(NEW_PARTICIPANT_INPUT);
+    MatcherAssert.assertThat("The input's prompt text did not match the expected value.",
+      newParticipantInput.getPromptText(), CoreMatchers.is("[!!! Éñƭèř δřïƲèř... ℓôřè !!!]"));
+  }
+
+  /**
    * Test that the add button is enabled when the new participant input field is populated.
    */
   @Test
