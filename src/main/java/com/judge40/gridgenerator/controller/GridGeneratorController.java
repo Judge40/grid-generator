@@ -35,6 +35,9 @@ import javafx.stage.Window;
 public class GridGeneratorController {
 
   @FXML
+  private ResourceBundle resources;
+
+  @FXML
   private BorderPane mainLayout;
 
   /**
@@ -50,9 +53,8 @@ public class GridGeneratorController {
    */
   @FXML
   private void displayInputParticipants() throws IOException {
-    ResourceBundle labelsBundle = ResourceBundle.getBundle("i18n.Labels");
     TabPane inputParticipants = FXMLLoader
-      .load(getClass().getResource("/fxml/input-participants.fxml"), labelsBundle);
+      .load(getClass().getResource("/fxml/input-participants.fxml"), resources);
     mainLayout.setCenter(inputParticipants);
   }
 

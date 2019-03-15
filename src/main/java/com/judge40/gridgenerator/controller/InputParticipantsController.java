@@ -39,18 +39,21 @@ public class InputParticipantsController {
     "Class 4", "Class 5", "Class 6", "Class 7", "Class 8", "Class 9", "Class 10");
 
   @FXML
+  private ResourceBundle resources;
+
+  @FXML
   private TabPane inputParticipantLayout;
 
   /**
    * Initialize the elements used by this controller.
    */
-  public void initialize() throws IOException {
-    ResourceBundle labelsBundle = ResourceBundle.getBundle("i18n.Labels");
+  @FXML
+  private void initialize() throws IOException {
     ObservableList<Tab> tabs = inputParticipantLayout.getTabs();
 
     for (String className : CLASS_NAMES) {
       VBox inputClassParticipants = FXMLLoader
-        .load(getClass().getResource("/fxml/input-class-participants.fxml"), labelsBundle);
+        .load(getClass().getResource("/fxml/input-class-participants.fxml"), resources);
       Tab classTab = new Tab(className, inputClassParticipants);
       tabs.add(classTab);
     }

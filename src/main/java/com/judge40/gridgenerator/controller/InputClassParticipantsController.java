@@ -57,7 +57,8 @@ public class InputClassParticipantsController {
   /**
    * Initialize the elements used by this controller.
    */
-  public void initialize() {
+  @FXML
+  private void initialize() {
     addButton.setDisable(newParticipantInput.getText().length() == 0);
     newParticipantInput.textProperty().addListener(
       (observable, oldValue, newValue) -> addButton.setDisable(newValue.length() == 0));
