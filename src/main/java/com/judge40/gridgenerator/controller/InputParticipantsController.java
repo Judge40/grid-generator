@@ -19,10 +19,12 @@
 
 package com.judge40.gridgenerator.controller;
 
+import com.judge40.gridgenerator.PreferenceHelper;
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.List;
 import java.util.ResourceBundle;
+import java.util.prefs.BackingStoreException;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
@@ -35,9 +37,6 @@ import javafx.scene.layout.VBox;
  */
 public class InputParticipantsController {
 
-  private static final List<String> CLASS_NAMES = Arrays.asList("Class 1", "Class 2", "Class 3",
-    "Class 4", "Class 5", "Class 6", "Class 7", "Class 8", "Class 9", "Class 10");
-
   @FXML
   private ResourceBundle resources;
 
@@ -48,10 +47,18 @@ public class InputParticipantsController {
    * Initialize the elements used by this controller.
    */
   @FXML
-  private void initialize() throws IOException {
+  private void initialize() throws BackingStoreException, ClassNotFoundException, IOException {
+    List<String> participantClassNames = PreferenceHelper.getParticipantClassNames();
+
+    // TODO: The preference should be initialized with a default so it is not assumed here.
+    if (participantClassNames.isEmpty()) {
+      participantClassNames = Arrays.asList("Class 1", "Class 2", "Class 3", "Class 4", "Class 5",
+        "Class 6", "Class 7", "Class 8", "Class 9", "Class 10");
+    }
+
     ObservableList<Tab> tabs = inputParticipantLayout.getTabs();
 
-    for (String className : CLASS_NAMES) {
+    for (String className : participantClassNames) {
       VBox inputClassParticipants = FXMLLoader
         .load(getClass().getResource("/fxml/input-class-participants.fxml"), resources);
       Tab classTab = new Tab(className, inputClassParticipants);

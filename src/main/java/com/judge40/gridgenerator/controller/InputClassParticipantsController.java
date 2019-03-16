@@ -19,6 +19,7 @@
 
 package com.judge40.gridgenerator.controller;
 
+import com.judge40.gridgenerator.PreferenceHelper;
 import java.text.MessageFormat;
 import java.util.ResourceBundle;
 import javafx.collections.ListChangeListener;
@@ -35,8 +36,6 @@ import javafx.scene.text.Text;
  * An FXML controller controller for participant input events.
  */
 public class InputClassParticipantsController {
-
-  private static final String VALID_FORMAT = "[A-Z]+\\d+[A-Z]*|\\d+F";
 
   private final ResourceBundle messageBundle = ResourceBundle.getBundle("i18n.Messages");
 
@@ -79,7 +78,14 @@ public class InputClassParticipantsController {
       return;
     }
 
-    if (!newParticipant.matches(VALID_FORMAT)) {
+    String participantValidator = PreferenceHelper.getParticipantValidator();
+
+    // TODO: The preference should be initialized with a default so it is not assumed here.
+    if (participantValidator.isEmpty()) {
+      participantValidator = "[A-Z]+\\d+[A-Z]*|\\d+F";
+    }
+
+    if (!newParticipant.matches(participantValidator)) {
       error("participant.add.invalid", newParticipant);
       return;
     }
