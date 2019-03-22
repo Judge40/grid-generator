@@ -19,9 +19,18 @@
 
 package com.judge40.gridgenerator.controller;
 
+import com.judge40.gridgenerator.GridGenerator;
+import com.judge40.gridgenerator.PreferenceHelper;
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.util.Arrays;
+import java.util.List;
 import java.util.Locale;
 import java.util.ResourceBundle;
+import java.util.prefs.BackingStoreException;
+import java.util.prefs.InvalidPreferencesFormatException;
+import java.util.prefs.Preferences;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Scene;
@@ -40,6 +49,7 @@ import javafx.stage.Stage;
 import org.hamcrest.CoreMatchers;
 import org.hamcrest.MatcherAssert;
 import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -63,13 +73,28 @@ class InputClassParticipantsControllerTest {
   private static final String NEW_PARTICIPANT_INPUT = "#newParticipantInput";
   private static final String PARTICIPANTS_DISPLAY = "#participantsDisplay";
 
+  private static Preferences preferences;
+  private static byte[] originalPreferenceBackup;
+
   private static Locale defaultLocale;
 
   private Stage stage;
 
   @BeforeAll
-  static void setUpBeforeAll() {
+  static void setUpBeforeAll() throws BackingStoreException, IOException {
     defaultLocale = Locale.getDefault();
+    preferences = Preferences.userNodeForPackage(GridGenerator.class);
+
+    // Create a backup of the original preferences values.
+    try (ByteArrayOutputStream baos = new ByteArrayOutputStream()) {
+      preferences.exportSubtree(baos);
+      originalPreferenceBackup = baos.toByteArray();
+    }
+  }
+
+  @AfterAll
+  static void tearDownAfterAll() {
+    Locale.setDefault(defaultLocale);
   }
 
   @Start
@@ -77,9 +102,19 @@ class InputClassParticipantsControllerTest {
     this.stage = stage;
   }
 
-  @AfterAll
-  static void tearDownAfterAll() {
-    Locale.setDefault(defaultLocale);
+  @AfterEach
+  void tearDown() throws BackingStoreException, IOException, InvalidPreferencesFormatException {
+    // Clear all the existing preferences values.
+    preferences.clear();
+
+    for (String childName : preferences.childrenNames()) {
+      preferences.node(childName).removeNode();
+    }
+
+    // Import the backed up preferences.
+    try (ByteArrayInputStream bais = new ByteArrayInputStream(originalPreferenceBackup)) {
+      Preferences.importPreferences(bais);
+    }
   }
 
   /**
@@ -93,7 +128,7 @@ class InputClassParticipantsControllerTest {
     "'" + DELETE_BUTTON + "', Delete"
   })
   void testInitialize_en_buttonDisabledTextEnglish(String buttonId, String label, FxRobot robot)
-      throws IOException {
+    throws IOException {
     // Set up test scenario.
     Locale.setDefault(Locale.ENGLISH);
     ResourceBundle labelsBundle = ResourceBundle.getBundle("i18n.Labels");
@@ -128,7 +163,7 @@ class InputClassParticipantsControllerTest {
     "'" + DELETE_BUTTON + "', [!!! Ðèℓèƭè ℓ !!!]"
   })
   void testInitialize_enPseudo_buttonDisabledTextPseudoEnglish(String buttonId, String label,
-      FxRobot robot) throws IOException {
+    FxRobot robot) throws IOException {
     // Set up test scenario.
     Locale.setDefault(new Locale("en", "PSEUDO"));
     ResourceBundle labelsBundle = ResourceBundle.getBundle("i18n.Labels");
@@ -238,7 +273,7 @@ class InputClassParticipantsControllerTest {
    */
   @Test
   void testInitialize_inputPopulatedThenDeleted_addButtonDisabled(FxRobot robot)
-      throws IOException {
+    throws IOException {
     // Set up test scenario.
     ResourceBundle labelsBundle = ResourceBundle.getBundle("i18n.Labels");
 
@@ -297,7 +332,7 @@ class InputClassParticipantsControllerTest {
    */
   @Test
   void testInitialize_participantAddedThenRemoved_clearButtonDisabled(FxRobot robot)
-      throws IOException {
+    throws IOException {
     // Set up test scenario.
     ResourceBundle labelsBundle = ResourceBundle.getBundle("i18n.Labels");
 
@@ -328,7 +363,7 @@ class InputClassParticipantsControllerTest {
    */
   @Test
   void testInitialize_displayedParticipantSelected_deleteButtonEnabled(FxRobot robot)
-      throws IOException {
+    throws IOException {
     // Set up test scenario.
     ResourceBundle labelsBundle = ResourceBundle.getBundle("i18n.Labels");
 
@@ -359,7 +394,7 @@ class InputClassParticipantsControllerTest {
    */
   @Test
   void testInitialize_displayedParticipantSelectedThenUnselected_deleteButtonDisabled(FxRobot robot)
-      throws IOException {
+    throws IOException {
     // Set up test scenario.
     ResourceBundle labelsBundle = ResourceBundle.getBundle("i18n.Labels");
 
@@ -388,13 +423,233 @@ class InputClassParticipantsControllerTest {
   }
 
   /**
+   * Test that there are no participants in the display when there is an error getting the stored
+   * participants.
+   */
+  @Test
+  void testInitializeData_errorGettingPreferenceValue_noParticipants(FxRobot robot)
+    throws IOException {
+    // Set up test scenario.
+    ResourceBundle labelsBundle = ResourceBundle.getBundle("i18n.Labels");
+
+    FXMLLoader loader = new FXMLLoader(
+      getClass().getResource("/fxml/input-class-participants.fxml"), labelsBundle);
+    VBox inputClassParticipants = loader.load();
+    Scene scene = new Scene(inputClassParticipants);
+
+    robot.interact(() -> {
+      stage.setScene(scene);
+      stage.show();
+    });
+
+    preferences.node("testClass/participants").putByteArray("0", new byte[0]);
+    InputClassParticipantsController controller = loader.getController();
+
+    // Call the code under test.
+    controller.initializeData("testClass");
+
+    // Perform assertions.
+    ListView<String> participantDisplay = robot.lookup(PARTICIPANTS_DISPLAY).query();
+    ObservableList<String> participants = participantDisplay.getItems();
+    MatcherAssert.assertThat("The number of participants did not match the expected value.",
+      participants.size(), CoreMatchers.is(0));
+  }
+
+  /**
+   * Test that there are no participants in the display when there are no stored participants.
+   */
+  @Test
+  void testInitializeData_noPreferenceValue_noParticipants(FxRobot robot)
+    throws BackingStoreException, IOException {
+    // Set up test scenario.
+    ResourceBundle labelsBundle = ResourceBundle.getBundle("i18n.Labels");
+
+    FXMLLoader loader = new FXMLLoader(
+      getClass().getResource("/fxml/input-class-participants.fxml"), labelsBundle);
+    VBox inputClassParticipants = loader.load();
+    Scene scene = new Scene(inputClassParticipants);
+
+    robot.interact(() -> {
+      stage.setScene(scene);
+      stage.show();
+    });
+
+    preferences.node("testClass/participants").removeNode();
+    InputClassParticipantsController controller = loader.getController();
+
+    // Call the code under test.
+    controller.initializeData("testClass");
+
+    // Perform assertions.
+    ListView<String> participantDisplay = robot.lookup(PARTICIPANTS_DISPLAY).query();
+    ObservableList<String> participants = participantDisplay.getItems();
+    MatcherAssert.assertThat("The number of participants did not match the expected value.",
+      participants.size(), CoreMatchers.is(0));
+  }
+
+  /**
+   * Test that there are participants in the display when there are stored participants.
+   */
+  @Test
+  void testInitializeData_hasPreferenceValue_hasParticipants(FxRobot robot)
+    throws BackingStoreException, IOException {
+    // Set up test scenario.
+    ResourceBundle labelsBundle = ResourceBundle.getBundle("i18n.Labels");
+
+    FXMLLoader loader = new FXMLLoader(
+      getClass().getResource("/fxml/input-class-participants.fxml"), labelsBundle);
+    VBox inputClassParticipants = loader.load();
+    Scene scene = new Scene(inputClassParticipants);
+
+    robot.interact(() -> {
+      stage.setScene(scene);
+      stage.show();
+    });
+
+    PreferenceHelper
+      .setClassParticipants("testClass", Arrays.asList("participant1", "participant2"));
+    InputClassParticipantsController controller = loader.getController();
+
+    // Call the code under test.
+    controller.initializeData("testClass");
+
+    // Perform assertions.
+    ListView<String> participantDisplay = robot.lookup(PARTICIPANTS_DISPLAY).query();
+    ObservableList<String> participants = participantDisplay.getItems();
+    MatcherAssert.assertThat("The number of participants did not match the expected value.",
+      participants.size(), CoreMatchers.is(2));
+    MatcherAssert
+      .assertThat("The participant did not match the expected value.", participants.get(0),
+        CoreMatchers.is("participant1"));
+    MatcherAssert
+      .assertThat("The participant did not match the expected value.", participants.get(1),
+        CoreMatchers.is("participant2"));
+  }
+
+  /**
+   * Test that the stored participants are updated when a participant is added.
+   */
+  @Test
+  void testInitializeData_participantAdded_storedParticipantsUpdated(FxRobot robot)
+    throws BackingStoreException, ClassNotFoundException, IOException {
+    // Set up test scenario.
+    ResourceBundle labelsBundle = ResourceBundle.getBundle("i18n.Labels");
+
+    FXMLLoader loader = new FXMLLoader(
+      getClass().getResource("/fxml/input-class-participants.fxml"), labelsBundle);
+    VBox inputClassParticipants = loader.load();
+    Scene scene = new Scene(inputClassParticipants);
+
+    robot.interact(() -> {
+      stage.setScene(scene);
+      stage.show();
+    });
+
+    PreferenceHelper
+      .setClassParticipants("testClass", Arrays.asList("participant1", "participant2"));
+    InputClassParticipantsController controller = loader.getController();
+    controller.initializeData("testClass");
+
+    ListView<String> participantDisplay = robot.lookup(PARTICIPANTS_DISPLAY).query();
+    ObservableList<String> participants = participantDisplay.getItems();
+
+    // Call the code under test.
+    participants.add("participant3");
+
+    // Perform assertions.
+    List<String> storedParticipants = PreferenceHelper.getClassParticipants("testClass");
+    MatcherAssert.assertThat("The number of stored participants did not match the expected value.",
+      storedParticipants.size(), CoreMatchers.is(3));
+    MatcherAssert.assertThat("The stored participant did not match the expected value.",
+      storedParticipants.get(0), CoreMatchers.is("participant1"));
+    MatcherAssert.assertThat("The stored participant did not match the expected value.",
+      storedParticipants.get(1), CoreMatchers.is("participant2"));
+    MatcherAssert.assertThat("The stored participant did not match the expected value.",
+      storedParticipants.get(2), CoreMatchers.is("participant3"));
+  }
+
+  /**
+   * Test that the stored participants are updated when a participants are cleared.
+   */
+  @Test
+  void testInitializeData_participantsCleared_storedParticipantsUpdated(FxRobot robot)
+    throws BackingStoreException, ClassNotFoundException, IOException {
+    // Set up test scenario.
+    ResourceBundle labelsBundle = ResourceBundle.getBundle("i18n.Labels");
+
+    FXMLLoader loader = new FXMLLoader(
+      getClass().getResource("/fxml/input-class-participants.fxml"), labelsBundle);
+    VBox inputClassParticipants = loader.load();
+    Scene scene = new Scene(inputClassParticipants);
+
+    robot.interact(() -> {
+      stage.setScene(scene);
+      stage.show();
+    });
+
+    PreferenceHelper
+      .setClassParticipants("testClass", Arrays.asList("participant1", "participant2"));
+    InputClassParticipantsController controller = loader.getController();
+    controller.initializeData("testClass");
+
+    ListView<String> participantDisplay = robot.lookup(PARTICIPANTS_DISPLAY).query();
+    ObservableList<String> participants = participantDisplay.getItems();
+
+    // Call the code under test.
+    participants.clear();
+
+    // Perform assertions.
+    List<String> storedParticipants = PreferenceHelper.getClassParticipants("testClass");
+    MatcherAssert.assertThat("The number of stored participants did not match the expected value.",
+      storedParticipants.size(), CoreMatchers.is(0));
+  }
+
+  /**
+   * Test that the stored participants are updated when a participant is deleted.
+   */
+  @Test
+  void testInitializeData_participantDeleted_storedParticipantsUpdated(FxRobot robot)
+    throws BackingStoreException, ClassNotFoundException, IOException {
+    // Set up test scenario.
+    ResourceBundle labelsBundle = ResourceBundle.getBundle("i18n.Labels");
+
+    FXMLLoader loader = new FXMLLoader(
+      getClass().getResource("/fxml/input-class-participants.fxml"), labelsBundle);
+    VBox inputClassParticipants = loader.load();
+    Scene scene = new Scene(inputClassParticipants);
+
+    robot.interact(() -> {
+      stage.setScene(scene);
+      stage.show();
+    });
+
+    PreferenceHelper
+      .setClassParticipants("testClass", Arrays.asList("participant1", "participant2"));
+    InputClassParticipantsController controller = loader.getController();
+    controller.initializeData("testClass");
+
+    ListView<String> participantDisplay = robot.lookup(PARTICIPANTS_DISPLAY).query();
+    ObservableList<String> participants = participantDisplay.getItems();
+
+    // Call the code under test.
+    participants.remove(1);
+
+    // Perform assertions.
+    List<String> storedParticipants = PreferenceHelper.getClassParticipants("testClass");
+    MatcherAssert.assertThat("The number of stored participants did not match the expected value.",
+      storedParticipants.size(), CoreMatchers.is(1));
+    MatcherAssert.assertThat("The stored participant did not match the expected value.",
+      storedParticipants.get(0), CoreMatchers.is("participant1"));
+  }
+
+  /**
    * Test that no action is performed when the input field is empty and the add action is triggered
    * from the input field.
    */
   @ParameterizedTest(name = "No action should be taken when the add action is triggered from \"{0}\"")
   @ValueSource(strings = {ADD_BUTTON, NEW_PARTICIPANT_INPUT})
   void testAddParticipant_emptyInputFieldAction_noAction(String trigger, FxRobot robot)
-      throws IOException {
+    throws IOException {
     // Set up test scenario.
     ResourceBundle labelsBundle = ResourceBundle.getBundle("i18n.Labels");
 
@@ -435,7 +690,7 @@ class InputClassParticipantsControllerTest {
   @ParameterizedTest(name = "Error message should be displayed when the add action is triggered from \"{0}\"")
   @ValueSource(strings = {ADD_BUTTON, NEW_PARTICIPANT_INPUT})
   void testAddParticipant_invalidInputHasErrorDisplayEn_englishErrorMessage(String trigger,
-      FxRobot robot) throws IOException {
+    FxRobot robot) throws IOException {
     // Set up test scenario.
     Locale.setDefault(Locale.ENGLISH);
     ResourceBundle labelsBundle = ResourceBundle.getBundle("i18n.Labels");
@@ -478,7 +733,7 @@ class InputClassParticipantsControllerTest {
   @ParameterizedTest(name = "Error message should be displayed when the add action is triggered from \"{0}\"")
   @ValueSource(strings = {ADD_BUTTON, NEW_PARTICIPANT_INPUT})
   void testAddParticipant_invalidInputHasErrorDisplayEnPseudo_pseudoEnglishErrorMessage(
-      String trigger, FxRobot robot) throws IOException {
+    String trigger, FxRobot robot) throws IOException {
     // Set up test scenario.
     Locale.setDefault(new Locale("en", "PSEUDO"));
     ResourceBundle labelsBundle = ResourceBundle.getBundle("i18n.Labels");
@@ -520,7 +775,7 @@ class InputClassParticipantsControllerTest {
   @ParameterizedTest(name = "Participant should be added when the add action is triggered from \"{0}\"")
   @ValueSource(strings = {ADD_BUTTON, NEW_PARTICIPANT_INPUT})
   void testAddParticipant_validInput_participantAdded(String trigger, FxRobot robot)
-      throws IOException {
+    throws IOException {
     // Set up test scenario.
     ResourceBundle labelsBundle = ResourceBundle.getBundle("i18n.Labels");
 
@@ -567,7 +822,7 @@ class InputClassParticipantsControllerTest {
   @ParameterizedTest(name = "Participant should not be added when the add action is triggered from \"{0}\"")
   @ValueSource(strings = {ADD_BUTTON, NEW_PARTICIPANT_INPUT})
   void testAddParticipant_validInputDuplicateDisplayedEn_englishErrorMessage(String trigger,
-      FxRobot robot) throws IOException {
+    FxRobot robot) throws IOException {
     // Set up test scenario.
     Locale.setDefault(Locale.ENGLISH);
     ResourceBundle labelsBundle = ResourceBundle.getBundle("i18n.Labels");
@@ -615,7 +870,7 @@ class InputClassParticipantsControllerTest {
   @ParameterizedTest(name = "Participant should not be added when the add action is triggered from \"{0}\"")
   @ValueSource(strings = {ADD_BUTTON, NEW_PARTICIPANT_INPUT})
   void testAddParticipant_validInputDuplicateDisplayedEnPseudo_pseudoEnglishErrorMessage(
-      String trigger, FxRobot robot) throws IOException {
+    String trigger, FxRobot robot) throws IOException {
     // Set up test scenario.
     Locale.setDefault(new Locale("en", "PSEUDO"));
     ResourceBundle labelsBundle = ResourceBundle.getBundle("i18n.Labels");
@@ -709,7 +964,7 @@ class InputClassParticipantsControllerTest {
    */
   @Test
   void testClearParticipants_enPseudo_pseudoEnglishConfirmationDialog(FxRobot robot)
-      throws IOException {
+    throws IOException {
     // Set up test scenario.
     Locale.setDefault(new Locale("en", "PSEUDO"));
     ResourceBundle labelsBundle = ResourceBundle.getBundle("i18n.Labels");
@@ -821,7 +1076,7 @@ class InputClassParticipantsControllerTest {
    */
   @Test
   void testDeleteParticipant_participantsDisplayedWithSelection_selectedParticipantDeleted(
-      FxRobot robot) throws IOException {
+    FxRobot robot) throws IOException {
     // Set up test scenario.
     ResourceBundle labelsBundle = ResourceBundle.getBundle("i18n.Labels");
 

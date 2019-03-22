@@ -59,8 +59,12 @@ public class InputParticipantsController {
     ObservableList<Tab> tabs = inputParticipantLayout.getTabs();
 
     for (String className : participantClassNames) {
-      VBox inputClassParticipants = FXMLLoader
-        .load(getClass().getResource("/fxml/input-class-participants.fxml"), resources);
+      FXMLLoader loader = new FXMLLoader(
+        getClass().getResource("/fxml/input-class-participants.fxml"), resources);
+      VBox inputClassParticipants = loader.load();
+      InputClassParticipantsController inputClassController = loader.getController();
+      inputClassController.initializeData(className);
+
       Tab classTab = new Tab(className, inputClassParticipants);
       tabs.add(classTab);
     }
