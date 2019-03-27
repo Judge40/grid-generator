@@ -20,7 +20,9 @@
 package com.judge40.gridgenerator;
 
 import java.io.IOException;
+import java.util.Arrays;
 import java.util.ResourceBundle;
+import java.util.prefs.BackingStoreException;
 import javafx.application.Application;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Scene;
@@ -33,7 +35,8 @@ import javafx.stage.Stage;
 public class GridGenerator extends Application {
 
   @Override
-  public void start(Stage primaryStage) throws IOException {
+  public void start(Stage primaryStage)
+      throws BackingStoreException, ClassNotFoundException, IOException {
     ResourceBundle labelsBundle = ResourceBundle.getBundle("i18n.Labels");
     BorderPane main = FXMLLoader
         .load(getClass().getResource("/fxml/GridGenerator.fxml"), labelsBundle);
@@ -41,5 +44,7 @@ public class GridGenerator extends Application {
     primaryStage.setTitle("Grid Generator");
     primaryStage.setScene(new Scene(main));
     primaryStage.show();
+
+    PreferenceHelper.initializePreferences();
   }
 }

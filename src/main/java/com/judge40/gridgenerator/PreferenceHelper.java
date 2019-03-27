@@ -24,6 +24,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.prefs.BackingStoreException;
@@ -40,10 +41,31 @@ public class PreferenceHelper {
     .userNodeForPackage(GridGenerator.class);
   private static final int BYTE_CHUNK_SIZE = (int) (Preferences.MAX_VALUE_LENGTH * 0.75);
 
-  private static final String CLASS_PARTICIPANTS = "%s/participants";
-
+  private static final String CLASS_PARTICIPANTS = "participants/%s";
   private static final String PARTICIPANT_CLASS_NAMES = "participantClassNames";
   private static final String PARTICIPANT_VALIDATOR = "participantValidator";
+
+  private static final String GRIDS_TOTAL_NUMBER = "gridsTotalNumber";
+
+  /**
+   * Initialize the preferences with default values if they are not already present.
+   * TODO: Use XML import to populate the preferences.
+   */
+  public static void initializePreferences()
+      throws BackingStoreException, ClassNotFoundException, IOException {
+    if (getObject(PARTICIPANT_CLASS_NAMES, null) == null) {
+      setParticipantClassNames(Arrays.asList("Class 1", "Class 2", "Class 3", "Class 4", "Class 5",
+        "Class 6", "Class 7", "Class 8", "Class 9", "Class 10"));
+    }
+
+    if (PREFERENCES.get(PARTICIPANT_VALIDATOR, null) == null) {
+      setParticipantValidator("[A-Z]+\\d+[A-Z]*|\\d+F");
+    }
+
+    if (PREFERENCES.getInt(GRIDS_TOTAL_NUMBER, -1) == -1) {
+      setNumberOfGrids(8);
+    }
+  }
 
   /**
    * Get the participants for a particular participant class.
@@ -107,7 +129,7 @@ public class PreferenceHelper {
   /**
    * Get the validator for participants.
    *
-   * @return The validator RegEx.
+   * @return The validator RegEx, defaults to an empty string if not set.
    */
   public static String getParticipantValidator() {
     return PREFERENCES.get(PARTICIPANT_VALIDATOR, "");
@@ -120,6 +142,22 @@ public class PreferenceHelper {
    */
   public static void setParticipantValidator(String participantValidator) {
     PREFERENCES.put(PARTICIPANT_VALIDATOR, participantValidator);
+  }
+
+  /**
+   * Get the total number of grids.
+   * @return The number of grids, defaults to 0 if not set.
+   */
+  public static int getNumberOfGrids() {
+    return PREFERENCES.getInt(GRIDS_TOTAL_NUMBER, 0);
+  }
+
+  /**
+   * Set the total number of grids.
+   * @param numberOfGrids The number of grids.
+   */
+  public static void setNumberOfGrids(int numberOfGrids) {
+    PREFERENCES.putInt(GRIDS_TOTAL_NUMBER, numberOfGrids);
   }
 
   /**

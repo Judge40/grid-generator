@@ -68,6 +68,66 @@ class PreferenceHelperTest {
       Preferences.importPreferences(bais);
     }
   }
+  /**
+   * Test that the application's preferences are initialized if no values exist.
+   */
+  @Test
+  void testInitializePreferences_noPreferenceValues_preferencesInitialized()
+    throws BackingStoreException, ClassNotFoundException, IOException {
+    // Set up test scenario.
+    for (String key : preferences.keys()) {
+      preferences.remove(key);
+    }
+
+    for (String childName : preferences.childrenNames()) {
+      preferences.node(childName).removeNode();
+    }
+
+    // Call the method under test.
+    PreferenceHelper.initializePreferences();
+
+    // Perform assertions.
+    List<String> participantClassNames = PreferenceHelper.getParticipantClassNames();
+    MatcherAssert.assertThat("The participant class names did not match the expected value.",
+      participantClassNames, CoreMatchers.is(Arrays.asList("Class 1", "Class 2", "Class 3",
+        "Class 4", "Class 5", "Class 6", "Class 7", "Class 8", "Class 9", "Class 10")));
+
+    String participantValidator = PreferenceHelper.getParticipantValidator();
+    MatcherAssert.assertThat("The participant validator did not match the expected value.",
+      participantValidator, CoreMatchers.is("[A-Z]+\\d+[A-Z]*|\\d+F"));
+
+    int numberOfGrids = PreferenceHelper.getNumberOfGrids();
+    MatcherAssert.assertThat("The number of grids did not match the expected value.", numberOfGrids,
+      CoreMatchers.is(8));
+  }
+
+  /**
+   * Test that the application's preferences are not initialized if values exist.
+   */
+  @Test
+  void testInitializePreferences_hasPreferenceValues_preferencesNotInitialized()
+    throws BackingStoreException, ClassNotFoundException, IOException {
+    // Set up test scenario.
+    PreferenceHelper.setParticipantClassNames(Arrays.asList("value1", "value2"));
+    PreferenceHelper.setParticipantValidator("preferenceValue");
+    PreferenceHelper.setNumberOfGrids(40);
+
+    // Call the method under test.
+    PreferenceHelper.initializePreferences();
+
+    // Perform assertions.
+    List<String> participantClassNames = PreferenceHelper.getParticipantClassNames();
+    MatcherAssert.assertThat("The participant class names did not match the expected value.",
+      participantClassNames, CoreMatchers.is(Arrays.asList("value1", "value2")));
+
+    String participantValidator = PreferenceHelper.getParticipantValidator();
+    MatcherAssert.assertThat("The participant validator did not match the expected value.",
+      participantValidator, CoreMatchers.is("preferenceValue"));
+
+    int numberOfGrids = PreferenceHelper.getNumberOfGrids();
+    MatcherAssert.assertThat("The number of grids did not match the expected value.", numberOfGrids,
+      CoreMatchers.is(40));
+  }
 
   /**
    * Test that an empty list is returned when there is no preference value set.
@@ -76,7 +136,7 @@ class PreferenceHelperTest {
   void testGetClassParticipants_noPreferenceValue_emptyList()
       throws BackingStoreException, IOException, ClassNotFoundException {
     // Set up test scenario.
-    preferences.node("testClass/participants").removeNode();
+    preferences.node("participants/testClass").removeNode();
 
     // Call the code under test.
     List<String> classParticipants = PreferenceHelper.getClassParticipants("testClass");
@@ -230,5 +290,37 @@ class PreferenceHelperTest {
     // Perform assertions.
     MatcherAssert.assertThat("The participant validator did not match the expected value.",
       participantValidator, CoreMatchers.is("preferenceValue"));
+  }
+
+  /**
+   * Test that zero is returned when there is no preference value set.
+   */
+  @Test
+  void testGetNumberOfGrids_noPreferenceValue_zero() {
+    // Set up test scenario.
+    preferences.remove("gridsTotalNumber");
+
+    // Call the code under test.
+    int numberOfGrids = PreferenceHelper.getNumberOfGrids();
+
+    // Perform assertions.
+    MatcherAssert.assertThat("The number of grids did not match the expected value.", numberOfGrids,
+      CoreMatchers.is(0));
+  }
+
+  /**
+   * Test that the preference value is returned when there is a preference value set.
+   */
+  @Test
+  void testGetNumberOfGrids_hasPreferenceValue_preferenceValue() {
+    // Set up test scenario.
+    PreferenceHelper.setNumberOfGrids(40);
+
+    // Call the code under test.
+    int numberOfGrids = PreferenceHelper.getNumberOfGrids();
+
+    // Perform assertions.
+    MatcherAssert.assertThat("The number of grids did not match the expected value.", numberOfGrids,
+      CoreMatchers.is(40));
   }
 }

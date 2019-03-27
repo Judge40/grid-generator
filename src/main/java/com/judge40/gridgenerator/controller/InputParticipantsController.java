@@ -50,12 +50,6 @@ public class InputParticipantsController {
   private void initialize() throws BackingStoreException, ClassNotFoundException, IOException {
     List<String> participantClassNames = PreferenceHelper.getParticipantClassNames();
 
-    // TODO: The preference should be initialized with a default so it is not assumed here.
-    if (participantClassNames.isEmpty()) {
-      participantClassNames = Arrays.asList("Class 1", "Class 2", "Class 3", "Class 4", "Class 5",
-        "Class 6", "Class 7", "Class 8", "Class 9", "Class 10");
-    }
-
     ObservableList<Tab> tabs = inputParticipantLayout.getTabs();
 
     for (String className : participantClassNames) {

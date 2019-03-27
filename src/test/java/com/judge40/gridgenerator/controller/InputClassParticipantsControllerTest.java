@@ -692,6 +692,7 @@ class InputClassParticipantsControllerTest {
   void testAddParticipant_invalidInputHasErrorDisplayEn_englishErrorMessage(String trigger,
     FxRobot robot) throws IOException {
     // Set up test scenario.
+    PreferenceHelper.setParticipantValidator("A1");
     Locale.setDefault(Locale.ENGLISH);
     ResourceBundle labelsBundle = ResourceBundle.getBundle("i18n.Labels");
 
@@ -735,6 +736,7 @@ class InputClassParticipantsControllerTest {
   void testAddParticipant_invalidInputHasErrorDisplayEnPseudo_pseudoEnglishErrorMessage(
     String trigger, FxRobot robot) throws IOException {
     // Set up test scenario.
+    PreferenceHelper.setParticipantValidator("A1");
     Locale.setDefault(new Locale("en", "PSEUDO"));
     ResourceBundle labelsBundle = ResourceBundle.getBundle("i18n.Labels");
 
@@ -777,6 +779,7 @@ class InputClassParticipantsControllerTest {
   void testAddParticipant_validInput_participantAdded(String trigger, FxRobot robot)
     throws IOException {
     // Set up test scenario.
+    PreferenceHelper.setParticipantValidator("A1");
     ResourceBundle labelsBundle = ResourceBundle.getBundle("i18n.Labels");
 
     VBox inputClassParticipants = FXMLLoader
@@ -824,6 +827,7 @@ class InputClassParticipantsControllerTest {
   void testAddParticipant_validInputDuplicateDisplayedEn_englishErrorMessage(String trigger,
     FxRobot robot) throws IOException {
     // Set up test scenario.
+    PreferenceHelper.setParticipantValidator("A1");
     Locale.setDefault(Locale.ENGLISH);
     ResourceBundle labelsBundle = ResourceBundle.getBundle("i18n.Labels");
 
@@ -872,6 +876,7 @@ class InputClassParticipantsControllerTest {
   void testAddParticipant_validInputDuplicateDisplayedEnPseudo_pseudoEnglishErrorMessage(
     String trigger, FxRobot robot) throws IOException {
     // Set up test scenario.
+    PreferenceHelper.setParticipantValidator("A1");
     Locale.setDefault(new Locale("en", "PSEUDO"));
     ResourceBundle labelsBundle = ResourceBundle.getBundle("i18n.Labels");
 

@@ -20,13 +20,22 @@
 package com.judge40.gridgenerator;
 
 import com.sun.javafx.scene.control.MenuBarButton;
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.util.Arrays;
+import java.util.List;
 import java.util.Locale;
+import java.util.prefs.BackingStoreException;
+import java.util.prefs.InvalidPreferencesFormatException;
+import java.util.prefs.Preferences;
 import javafx.scene.control.MenuItem;
 import javafx.stage.Stage;
 import org.hamcrest.CoreMatchers;
 import org.hamcrest.MatcherAssert;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.testfx.api.FxAssert;
@@ -40,23 +49,52 @@ import org.testfx.matcher.control.LabeledMatchers;
  * The unit tests for {@link GridGenerator}.
  */
 @ExtendWith(ApplicationExtension.class)
-public class GridGeneratorTest {
+class GridGeneratorTest {
+
+  private static Preferences preferences;
+  private static byte[] originalPreferenceBackup;
 
   private GridGenerator gridGenerator;
 
   private Stage stage;
 
+  @BeforeAll
+  static void setUpBeforeAll() throws BackingStoreException, IOException {
+    preferences = Preferences.userNodeForPackage(GridGenerator.class);
+
+    // Create a backup of the original preferences values.
+    try (ByteArrayOutputStream baos = new ByteArrayOutputStream()) {
+      preferences.exportSubtree(baos);
+      originalPreferenceBackup = baos.toByteArray();
+    }
+  }
+
   @Start
-  public void setUp(Stage stage) {
+  void setUp(Stage stage) {
     this.stage = stage;
     gridGenerator = new GridGenerator();
+  }
+
+  @AfterEach
+  void tearDown() throws BackingStoreException, IOException, InvalidPreferencesFormatException {
+    // Clear all the existing preferences values.
+    preferences.clear();
+
+    for (String childName : preferences.childrenNames()) {
+      preferences.node(childName).removeNode();
+    }
+
+    // Import the backed up preferences.
+    try (ByteArrayInputStream bais = new ByteArrayInputStream(originalPreferenceBackup)) {
+      Preferences.importPreferences(bais);
+    }
   }
 
   /**
    * Test that the stage title is set to "Grid Generator" when the locale is English.
    */
   @Test
-  public void testStart_en_titleGridGenerator(FxRobot robot) {
+  void testStart_en_titleGridGenerator(FxRobot robot) {
     // Set up test scenario.
     Locale.setDefault(Locale.ENGLISH);
 
@@ -64,7 +102,7 @@ public class GridGeneratorTest {
     robot.interact(() -> {
       try {
         gridGenerator.start(stage);
-      } catch (IOException e) {
+      } catch (BackingStoreException | ClassNotFoundException | IOException e) {
         Assertions.fail("An unexpected exception was thrown.", e);
       }
     });
@@ -78,7 +116,7 @@ public class GridGeneratorTest {
    * Test that the "File" menu is available on the dialog when the locale is English.
    */
   @Test
-  public void testStart_en_hasFileMenu(FxRobot robot) {
+  void testStart_en_hasFileMenu(FxRobot robot) {
     // Set up test scenario.
     Locale.setDefault(Locale.ENGLISH);
 
@@ -86,7 +124,7 @@ public class GridGeneratorTest {
     robot.interact(() -> {
       try {
         gridGenerator.start(stage);
-      } catch (IOException e) {
+      } catch (BackingStoreException | ClassNotFoundException | IOException e) {
         Assertions.fail("An unexpected exception was thrown.", e);
       }
     });
@@ -101,7 +139,7 @@ public class GridGeneratorTest {
    * Test that the "Exit" menu is available on the dialog when the locale is English.
    */
   @Test
-  public void testStart_en_hasExitMenuItem(FxRobot robot) {
+  void testStart_en_hasExitMenuItem(FxRobot robot) {
     // Set up test scenario.
     Locale.setDefault(Locale.ENGLISH);
 
@@ -109,7 +147,7 @@ public class GridGeneratorTest {
     robot.interact(() -> {
       try {
         gridGenerator.start(stage);
-      } catch (IOException e) {
+      } catch (BackingStoreException | ClassNotFoundException | IOException e) {
         Assertions.fail("An unexpected exception was thrown.", e);
       }
     });
@@ -131,7 +169,7 @@ public class GridGeneratorTest {
    * Test that the "Navigate" menu is available on the dialog when the locale is English.
    */
   @Test
-  public void testStart_en_hasNavigateMenu(FxRobot robot) {
+  void testStart_en_hasNavigateMenu(FxRobot robot) {
     // Set up test scenario.
     Locale.setDefault(Locale.ENGLISH);
 
@@ -139,7 +177,7 @@ public class GridGeneratorTest {
     robot.interact(() -> {
       try {
         gridGenerator.start(stage);
-      } catch (IOException e) {
+      } catch (BackingStoreException | ClassNotFoundException | IOException e) {
         Assertions.fail("An unexpected exception was thrown.", e);
       }
     });
@@ -155,7 +193,7 @@ public class GridGeneratorTest {
    * Test that the "Input Participants" menu is available on the dialog when the locale is English.
    */
   @Test
-  public void testStart_en_hasInputParticipantsMenuItem(FxRobot robot) {
+  void testStart_en_hasInputParticipantsMenuItem(FxRobot robot) {
     // Set up test scenario.
     Locale.setDefault(Locale.ENGLISH);
 
@@ -163,7 +201,7 @@ public class GridGeneratorTest {
     robot.interact(() -> {
       try {
         gridGenerator.start(stage);
-      } catch (IOException e) {
+      } catch (BackingStoreException | ClassNotFoundException | IOException e) {
         Assertions.fail("An unexpected exception was thrown.", e);
       }
     });
@@ -185,7 +223,7 @@ public class GridGeneratorTest {
    * Test that the "Draw Grids" menu item is available on the dialog when the locale is English.
    */
   @Test
-  public void testStart_en_hasDrawGridsMenuItem(FxRobot robot) {
+  void testStart_en_hasDrawGridsMenuItem(FxRobot robot) {
     // Set up test scenario.
     Locale.setDefault(Locale.ENGLISH);
 
@@ -193,7 +231,7 @@ public class GridGeneratorTest {
     robot.interact(() -> {
       try {
         gridGenerator.start(stage);
-      } catch (IOException e) {
+      } catch (BackingStoreException | ClassNotFoundException | IOException e) {
         Assertions.fail("An unexpected exception was thrown.", e);
       }
     });
@@ -215,7 +253,7 @@ public class GridGeneratorTest {
    * Test that the stage title is set to "Grid Generator" when the locale is English.
    */
   @Test
-  public void testStart_enPseudo_titleGridGenerator(FxRobot robot) {
+  void testStart_enPseudo_titleGridGenerator(FxRobot robot) {
     // Set up test scenario.
     Locale.setDefault(new Locale("en", "PSEUDO"));
 
@@ -223,7 +261,7 @@ public class GridGeneratorTest {
     robot.interact(() -> {
       try {
         gridGenerator.start(stage);
-      } catch (IOException e) {
+      } catch (BackingStoreException | ClassNotFoundException | IOException e) {
         Assertions.fail("An unexpected exception was thrown.", e);
       }
     });
@@ -237,7 +275,7 @@ public class GridGeneratorTest {
    * Test that the "File" menu is available on the dialog when the locale is en-PSEUDO.
    */
   @Test
-  public void testStart_enPseudo_hasFileMenu(FxRobot robot) {
+  void testStart_enPseudo_hasFileMenu(FxRobot robot) {
     // Set up test scenario.
     Locale.setDefault(new Locale("en", "PSEUDO"));
 
@@ -245,7 +283,7 @@ public class GridGeneratorTest {
     robot.interact(() -> {
       try {
         gridGenerator.start(stage);
-      } catch (IOException e) {
+      } catch (BackingStoreException | ClassNotFoundException | IOException e) {
         Assertions.fail("An unexpected exception was thrown.", e);
       }
     });
@@ -260,7 +298,7 @@ public class GridGeneratorTest {
    * Test that the "Exit" menu is available on the dialog when the locale is en-PSEUDO.
    */
   @Test
-  public void testStart_enPseudo_hasExitMenuItem(FxRobot robot) {
+  void testStart_enPseudo_hasExitMenuItem(FxRobot robot) {
     // Set up test scenario.
     Locale.setDefault(new Locale("en", "PSEUDO"));
 
@@ -268,7 +306,7 @@ public class GridGeneratorTest {
     robot.interact(() -> {
       try {
         gridGenerator.start(stage);
-      } catch (IOException e) {
+      } catch (BackingStoreException | ClassNotFoundException | IOException e) {
         Assertions.fail("An unexpected exception was thrown.", e);
       }
     });
@@ -290,7 +328,7 @@ public class GridGeneratorTest {
    * Test that the "Navigate" menu is available on the dialog when the locale is en-PSEUDO.
    */
   @Test
-  public void testStart_enPseudo_hasNavigateMenu(FxRobot robot) {
+  void testStart_enPseudo_hasNavigateMenu(FxRobot robot) {
     // Set up test scenario.
     Locale.setDefault(new Locale("en", "PSEUDO"));
 
@@ -298,7 +336,7 @@ public class GridGeneratorTest {
     robot.interact(() -> {
       try {
         gridGenerator.start(stage);
-      } catch (IOException e) {
+      } catch (BackingStoreException | ClassNotFoundException | IOException e) {
         Assertions.fail("An unexpected exception was thrown.", e);
       }
     });
@@ -314,7 +352,7 @@ public class GridGeneratorTest {
    * en-PSEUDO.
    */
   @Test
-  public void testStart_enPseudo_hasInputParticipantsMenuItem(FxRobot robot) {
+  void testStart_enPseudo_hasInputParticipantsMenuItem(FxRobot robot) {
     // Set up test scenario.
     Locale.setDefault(new Locale("en", "PSEUDO"));
 
@@ -322,7 +360,7 @@ public class GridGeneratorTest {
     robot.interact(() -> {
       try {
         gridGenerator.start(stage);
-      } catch (IOException e) {
+      } catch (BackingStoreException | ClassNotFoundException | IOException e) {
         Assertions.fail("An unexpected exception was thrown.", e);
       }
     });
@@ -344,7 +382,7 @@ public class GridGeneratorTest {
    * Test that the "Draw Grids" menu item is available on the dialog when the locale is en-PSEUDO.
    */
   @Test
-  public void testStart_enPseudo_hasDrawGridsMenuItem(FxRobot robot) {
+  void testStart_enPseudo_hasDrawGridsMenuItem(FxRobot robot) {
     // Set up test scenario.
     Locale.setDefault(new Locale("en", "PSEUDO"));
 
@@ -352,7 +390,7 @@ public class GridGeneratorTest {
     robot.interact(() -> {
       try {
         gridGenerator.start(stage);
-      } catch (IOException e) {
+      } catch (BackingStoreException | ClassNotFoundException | IOException e) {
         Assertions.fail("An unexpected exception was thrown.", e);
       }
     });
@@ -368,5 +406,77 @@ public class GridGeneratorTest {
       menuItem.isDisable(), CoreMatchers.is(false));
     MatcherAssert.assertThat("The menu item's text  did not match the expected value.",
       menuItem.getText(), CoreMatchers.is("[!!! Ðřáω Gřïδƨ ℓô !!!]"));
+  }
+
+  /**
+   * Test that the application's preferences are initialized if no values exist.
+   */
+  @Test
+  void testStart_noPreferenceValues_preferencesInitialized(FxRobot robot)
+    throws BackingStoreException, ClassNotFoundException, IOException {
+    // Set up test scenario.
+    for (String key : preferences.keys()) {
+      preferences.remove(key);
+    }
+
+    for (String childName : preferences.childrenNames()) {
+      preferences.node(childName).removeNode();
+    }
+
+    // Call the method under test.
+    robot.interact(() -> {
+      try {
+        gridGenerator.start(stage);
+      } catch (BackingStoreException | ClassNotFoundException | IOException e) {
+        Assertions.fail("An unexpected exception was thrown.", e);
+      }
+    });
+
+    // Perform assertions.
+    List<String> participantClassNames = PreferenceHelper.getParticipantClassNames();
+    MatcherAssert.assertThat("The participant class names did not match the expected value.",
+      participantClassNames, CoreMatchers.notNullValue());
+
+    String participantValidator = PreferenceHelper.getParticipantValidator();
+    MatcherAssert.assertThat("The participant validator did not match the expected value.",
+      participantValidator, CoreMatchers.notNullValue());
+
+    int numberOfGrids = PreferenceHelper.getNumberOfGrids();
+    MatcherAssert.assertThat("The number of grids did not match the expected value.", numberOfGrids,
+      CoreMatchers.notNullValue());
+  }
+
+  /**
+   * Test that the application's preferences are not initialized if values exist.
+   */
+  @Test
+  void testStart_hasPreferenceValues_preferencesNotInitialized(FxRobot robot)
+    throws BackingStoreException, ClassNotFoundException, IOException {
+    // Set up test scenario.
+    PreferenceHelper.setParticipantClassNames(Arrays.asList("Class 1", "Class 2"));
+    PreferenceHelper.setParticipantValidator("validator");
+    PreferenceHelper.setNumberOfGrids(40);
+
+    // Call the method under test.
+    robot.interact(() -> {
+      try {
+        gridGenerator.start(stage);
+      } catch (BackingStoreException | ClassNotFoundException | IOException e) {
+        Assertions.fail("An unexpected exception was thrown.", e);
+      }
+    });
+
+    // Perform assertions.
+    List<String> participantClassNames = PreferenceHelper.getParticipantClassNames();
+    MatcherAssert.assertThat("The participant class names did not match the expected value.",
+      participantClassNames, CoreMatchers.is(Arrays.asList("Class 1", "Class 2")));
+
+    String participantValidator = PreferenceHelper.getParticipantValidator();
+    MatcherAssert.assertThat("The participant validator did not match the expected value.",
+      participantValidator, CoreMatchers.is("validator"));
+
+    int numberOfGrids = PreferenceHelper.getNumberOfGrids();
+    MatcherAssert.assertThat("The number of grids did not match the expected value.", numberOfGrids,
+      CoreMatchers.is(40));
   }
 }

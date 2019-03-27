@@ -119,11 +119,6 @@ public class InputClassParticipantsController {
 
     String participantValidator = PreferenceHelper.getParticipantValidator();
 
-    // TODO: The preference should be initialized with a default so it is not assumed here.
-    if (participantValidator.isEmpty()) {
-      participantValidator = "[A-Z]+\\d+[A-Z]*|\\d+F";
-    }
-
     if (!newParticipant.matches(participantValidator)) {
       displayInputValidationError("participant.add.invalid", newParticipant);
       return;
