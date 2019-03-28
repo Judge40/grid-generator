@@ -22,8 +22,8 @@ package com.judge40.gridgenerator.controller;
 import java.io.IOException;
 import java.util.ResourceBundle;
 import javafx.fxml.FXMLLoader;
+import javafx.scene.Node;
 import javafx.scene.Scene;
-import javafx.scene.control.TabPane;
 import javafx.scene.layout.BorderPane;
 import javafx.stage.Stage;
 import org.hamcrest.CoreMatchers;
@@ -54,18 +54,35 @@ class GridGeneratorControllerTest {
   }
 
   /**
-   * Test that the input participants TabPane is added to the BorderPane's center when the display
+   * Test that the draw grids layout is added to the BorderPane's center when the display input
+   * participant action is triggered.
+   */
+  @Test
+  void testDisplayDrawGrids_drawGridsDisplayed(FxRobot robot) {
+    // Call the code under test.
+    robot.clickOn("#navigateMenu");
+    robot.clickOn("#drawGridsMenuItem");
+
+    // Perform assertions.
+    BorderPane mainLayout = robot.lookup("#mainLayout").query();
+    Node drawGrids = mainLayout.getCenter();
+    MatcherAssert.assertThat("The main layout's center's ID did not match the expected value.",
+      drawGrids.getId(), CoreMatchers.is("drawGridsLayout"));
+  }
+
+  /**
+   * Test that the input participants layout is added to the BorderPane's center when the display
    * input participant action is triggered.
    */
   @Test
-  void testDisplayInputParticipants(FxRobot robot) {
+  void testDisplayInputParticipants_inputParticipantsDisplayed(FxRobot robot) {
     // Call the code under test.
     robot.clickOn("#navigateMenu");
     robot.clickOn("#inputParticipantsMenuItem");
 
     // Perform assertions.
     BorderPane mainLayout = robot.lookup("#mainLayout").query();
-    TabPane inputParticipants = (TabPane) mainLayout.getCenter();
+    Node inputParticipants = mainLayout.getCenter();
     MatcherAssert.assertThat("The main layout's center's ID did not match the expected value.",
       inputParticipants.getId(), CoreMatchers.is("inputParticipantLayout"));
   }

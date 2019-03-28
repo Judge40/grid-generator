@@ -26,6 +26,7 @@ import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.control.TabPane;
 import javafx.scene.layout.BorderPane;
+import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 import javafx.stage.Window;
 
@@ -42,14 +43,18 @@ public class GridGeneratorController {
 
   /**
    * Display the Draw Grids interface.
+   * @throws IOException If the required FXML could not be loaded.
    */
   @FXML
-  private void displayDrawGrids() {
-    System.out.println("Draw Grids not yet implemented.");
+  private void displayDrawGrids() throws IOException {
+    VBox drawGrids = FXMLLoader
+      .load(getClass().getResource("/fxml/draw-grids.fxml"), resources);
+    mainLayout.setCenter(drawGrids);
   }
 
   /**
    * Display the Input Participants interface.
+   * @throws IOException If the required FXML could not be loaded.
    */
   @FXML
   private void displayInputParticipants() throws IOException {
