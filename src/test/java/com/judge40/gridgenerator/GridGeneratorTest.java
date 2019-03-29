@@ -20,19 +20,17 @@
 package com.judge40.gridgenerator;
 
 import com.sun.javafx.scene.control.MenuBarButton;
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Locale;
 import java.util.prefs.BackingStoreException;
 import java.util.prefs.InvalidPreferencesFormatException;
-import java.util.prefs.Preferences;
 import javafx.scene.control.MenuItem;
 import javafx.stage.Stage;
 import org.hamcrest.CoreMatchers;
 import org.hamcrest.MatcherAssert;
+import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeAll;
@@ -51,8 +49,7 @@ import org.testfx.matcher.control.LabeledMatchers;
 @ExtendWith(ApplicationExtension.class)
 class GridGeneratorTest {
 
-  private static Preferences preferences;
-  private static byte[] originalPreferenceBackup;
+  private static PreferenceTestHelper preferenceTestHelper;
 
   private GridGenerator gridGenerator;
 
@@ -60,13 +57,13 @@ class GridGeneratorTest {
 
   @BeforeAll
   static void setUpBeforeAll() throws BackingStoreException, IOException {
-    preferences = Preferences.userNodeForPackage(GridGenerator.class);
+    preferenceTestHelper = new PreferenceTestHelper();
+  }
 
-    // Create a backup of the original preferences values.
-    try (ByteArrayOutputStream baos = new ByteArrayOutputStream()) {
-      preferences.exportSubtree(baos);
-      originalPreferenceBackup = baos.toByteArray();
-    }
+  @AfterAll
+  static void tearDownAfterAll()
+    throws BackingStoreException, IOException, InvalidPreferencesFormatException {
+    preferenceTestHelper.restorePreferences();
   }
 
   @Start
@@ -76,18 +73,8 @@ class GridGeneratorTest {
   }
 
   @AfterEach
-  void tearDown() throws BackingStoreException, IOException, InvalidPreferencesFormatException {
-    // Clear all the existing preferences values.
-    preferences.clear();
-
-    for (String childName : preferences.childrenNames()) {
-      preferences.node(childName).removeNode();
-    }
-
-    // Import the backed up preferences.
-    try (ByteArrayInputStream bais = new ByteArrayInputStream(originalPreferenceBackup)) {
-      Preferences.importPreferences(bais);
-    }
+  void tearDown() throws BackingStoreException {
+    preferenceTestHelper.clearPreferences();
   }
 
   /**
@@ -414,15 +401,6 @@ class GridGeneratorTest {
   @Test
   void testStart_noPreferenceValues_preferencesInitialized(FxRobot robot)
     throws BackingStoreException, ClassNotFoundException, IOException {
-    // Set up test scenario.
-    for (String key : preferences.keys()) {
-      preferences.remove(key);
-    }
-
-    for (String childName : preferences.childrenNames()) {
-      preferences.node(childName).removeNode();
-    }
-
     // Call the method under test.
     robot.interact(() -> {
       try {

@@ -19,10 +19,8 @@
 
 package com.judge40.gridgenerator.controller;
 
-import com.judge40.gridgenerator.GridGenerator;
 import com.judge40.gridgenerator.PreferenceHelper;
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
+import com.judge40.gridgenerator.PreferenceTestHelper;
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.List;
@@ -73,28 +71,22 @@ class InputClassParticipantsControllerTest {
   private static final String NEW_PARTICIPANT_INPUT = "#newParticipantInput";
   private static final String PARTICIPANTS_DISPLAY = "#participantsDisplay";
 
-  private static Preferences preferences;
-  private static byte[] originalPreferenceBackup;
-
+  private static PreferenceTestHelper preferenceTestHelper;
   private static Locale defaultLocale;
 
   private Stage stage;
 
   @BeforeAll
   static void setUpBeforeAll() throws BackingStoreException, IOException {
+    preferenceTestHelper = new PreferenceTestHelper();
     defaultLocale = Locale.getDefault();
-    preferences = Preferences.userNodeForPackage(GridGenerator.class);
-
-    // Create a backup of the original preferences values.
-    try (ByteArrayOutputStream baos = new ByteArrayOutputStream()) {
-      preferences.exportSubtree(baos);
-      originalPreferenceBackup = baos.toByteArray();
-    }
   }
 
   @AfterAll
-  static void tearDownAfterAll() {
+  static void tearDownAfterAll()
+    throws BackingStoreException, IOException, InvalidPreferencesFormatException {
     Locale.setDefault(defaultLocale);
+    preferenceTestHelper.restorePreferences();
   }
 
   @Start
@@ -103,18 +95,8 @@ class InputClassParticipantsControllerTest {
   }
 
   @AfterEach
-  void tearDown() throws BackingStoreException, IOException, InvalidPreferencesFormatException {
-    // Clear all the existing preferences values.
-    preferences.clear();
-
-    for (String childName : preferences.childrenNames()) {
-      preferences.node(childName).removeNode();
-    }
-
-    // Import the backed up preferences.
-    try (ByteArrayInputStream bais = new ByteArrayInputStream(originalPreferenceBackup)) {
-      Preferences.importPreferences(bais);
-    }
+  void tearDown() throws BackingStoreException {
+    preferenceTestHelper.clearPreferences();
   }
 
   /**
@@ -442,6 +424,7 @@ class InputClassParticipantsControllerTest {
       stage.show();
     });
 
+    Preferences preferences = preferenceTestHelper.getPreferences();
     preferences.node("testClass/participants").putByteArray("0", new byte[0]);
     InputClassParticipantsController controller = loader.getController();
 
@@ -474,7 +457,6 @@ class InputClassParticipantsControllerTest {
       stage.show();
     });
 
-    preferences.node("testClass/participants").removeNode();
     InputClassParticipantsController controller = loader.getController();
 
     // Call the code under test.

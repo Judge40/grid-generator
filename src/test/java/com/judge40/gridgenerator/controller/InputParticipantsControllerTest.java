@@ -19,17 +19,14 @@
 
 package com.judge40.gridgenerator.controller;
 
-import com.judge40.gridgenerator.GridGenerator;
 import com.judge40.gridgenerator.PreferenceHelper;
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
+import com.judge40.gridgenerator.PreferenceTestHelper;
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.ResourceBundle;
 import java.util.prefs.BackingStoreException;
 import java.util.prefs.InvalidPreferencesFormatException;
-import java.util.prefs.Preferences;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.control.ListView;
@@ -38,6 +35,7 @@ import javafx.scene.control.TabPane;
 import javafx.scene.layout.VBox;
 import org.hamcrest.CoreMatchers;
 import org.hamcrest.MatcherAssert;
+import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
@@ -50,33 +48,22 @@ import org.testfx.framework.junit5.ApplicationExtension;
 @ExtendWith(ApplicationExtension.class)
 class InputParticipantsControllerTest {
 
-  private static Preferences preferences;
-  private static byte[] originalPreferenceBackup;
+  private static PreferenceTestHelper preferenceTestHelper;
 
   @BeforeAll
   static void setUpBeforeAll() throws BackingStoreException, IOException {
-    preferences = Preferences.userNodeForPackage(GridGenerator.class);
+    preferenceTestHelper = new PreferenceTestHelper();
+  }
 
-    // Create a backup of the original preferences values.
-    try (ByteArrayOutputStream baos = new ByteArrayOutputStream()) {
-      preferences.exportSubtree(baos);
-      originalPreferenceBackup = baos.toByteArray();
-    }
+  @AfterAll
+  static void tearDownAfterAll()
+    throws BackingStoreException, IOException, InvalidPreferencesFormatException {
+    preferenceTestHelper.restorePreferences();
   }
 
   @AfterEach
-  void tearDown() throws BackingStoreException, IOException, InvalidPreferencesFormatException {
-    // Clear all the existing preferences values.
-    preferences.clear();
-
-    for (String childName : preferences.childrenNames()) {
-      preferences.node(childName).removeNode();
-    }
-
-    // Import the backed up preferences.
-    try (ByteArrayInputStream bais = new ByteArrayInputStream(originalPreferenceBackup)) {
-      Preferences.importPreferences(bais);
-    }
+  void tearDown() throws BackingStoreException {
+    preferenceTestHelper.clearPreferences();
   }
 
   /**

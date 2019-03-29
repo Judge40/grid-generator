@@ -19,8 +19,6 @@
 
 package com.judge40.gridgenerator;
 
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -28,9 +26,9 @@ import java.util.Collections;
 import java.util.List;
 import java.util.prefs.BackingStoreException;
 import java.util.prefs.InvalidPreferencesFormatException;
-import java.util.prefs.Preferences;
 import org.hamcrest.CoreMatchers;
 import org.hamcrest.MatcherAssert;
+import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
@@ -40,49 +38,30 @@ import org.junit.jupiter.api.Test;
  */
 class PreferenceHelperTest {
 
-  private static Preferences preferences;
-  private static byte[] originalPreferenceBackup;
+  private static PreferenceTestHelper preferenceTestHelper;
 
   @BeforeAll
   static void setUpBeforeAll() throws BackingStoreException, IOException {
-    preferences = Preferences.userNodeForPackage(GridGenerator.class);
+    preferenceTestHelper = new PreferenceTestHelper();
+  }
 
-    // Create a backup of the original preferences values.
-    try (ByteArrayOutputStream baos = new ByteArrayOutputStream()) {
-      preferences.exportSubtree(baos);
-      originalPreferenceBackup = baos.toByteArray();
-    }
+  @AfterAll
+  static void tearDownAfterAll()
+    throws BackingStoreException, IOException, InvalidPreferencesFormatException {
+    preferenceTestHelper.restorePreferences();
   }
 
   @AfterEach
-  void tearDown() throws BackingStoreException, IOException, InvalidPreferencesFormatException {
-    // Clear all the existing preferences values.
-    preferences.clear();
-
-    for (String childName : preferences.childrenNames()) {
-      preferences.node(childName).removeNode();
-    }
-
-    // Import the backed up preferences.
-    try (ByteArrayInputStream bais = new ByteArrayInputStream(originalPreferenceBackup)) {
-      Preferences.importPreferences(bais);
-    }
+  void tearDown() throws BackingStoreException {
+    preferenceTestHelper.clearPreferences();
   }
+
   /**
    * Test that the application's preferences are initialized if no values exist.
    */
   @Test
   void testInitializePreferences_noPreferenceValues_preferencesInitialized()
     throws BackingStoreException, ClassNotFoundException, IOException {
-    // Set up test scenario.
-    for (String key : preferences.keys()) {
-      preferences.remove(key);
-    }
-
-    for (String childName : preferences.childrenNames()) {
-      preferences.node(childName).removeNode();
-    }
-
     // Call the method under test.
     PreferenceHelper.initializePreferences();
 
@@ -134,10 +113,7 @@ class PreferenceHelperTest {
    */
   @Test
   void testGetClassParticipants_noPreferenceValue_emptyList()
-      throws BackingStoreException, IOException, ClassNotFoundException {
-    // Set up test scenario.
-    preferences.node("participants/testClass").removeNode();
-
+    throws BackingStoreException, IOException, ClassNotFoundException {
     // Call the code under test.
     List<String> classParticipants = PreferenceHelper.getClassParticipants("testClass");
 
@@ -151,7 +127,7 @@ class PreferenceHelperTest {
    */
   @Test
   void testGetClassParticipants_hasSmallPreferenceValue_preferenceValue()
-      throws BackingStoreException, ClassNotFoundException, IOException {
+    throws BackingStoreException, ClassNotFoundException, IOException {
     // Set up test scenario.
     PreferenceHelper.setClassParticipants("testClass", Arrays.asList("value1", "value2"));
 
@@ -169,7 +145,7 @@ class PreferenceHelperTest {
    */
   @Test
   void testGetClassParticipants_hasLargePreferenceValue_preferenceValue()
-      throws BackingStoreException, ClassNotFoundException, IOException {
+    throws BackingStoreException, ClassNotFoundException, IOException {
     // Set up test scenario.
     List<String> largeValueList = new ArrayList<>();
     char[] largeValueChars = new char[1000];
@@ -199,10 +175,7 @@ class PreferenceHelperTest {
    */
   @Test
   void testGetParticipantClassNames_noPreferenceValue_emptyList()
-      throws BackingStoreException, IOException, ClassNotFoundException {
-    // Set up test scenario.
-    preferences.node("participantClassNames").removeNode();
-
+    throws BackingStoreException, IOException, ClassNotFoundException {
     // Call the code under test.
     List<String> participantClassNames = PreferenceHelper.getParticipantClassNames();
 
@@ -216,7 +189,7 @@ class PreferenceHelperTest {
    */
   @Test
   void testGetParticipantClassNames_hasSmallPreferenceValue_preferenceValue()
-      throws BackingStoreException, ClassNotFoundException, IOException {
+    throws BackingStoreException, ClassNotFoundException, IOException {
     // Set up test scenario.
     PreferenceHelper.setParticipantClassNames(Arrays.asList("value1", "value2"));
 
@@ -234,7 +207,7 @@ class PreferenceHelperTest {
    */
   @Test
   void testGetParticipantClassNames_hasLargePreferenceValue_preferenceValue()
-      throws BackingStoreException, ClassNotFoundException, IOException {
+    throws BackingStoreException, ClassNotFoundException, IOException {
     // Set up test scenario.
     List<String> largeValueList = new ArrayList<>();
     char[] largeValueChars = new char[1000];
@@ -265,9 +238,6 @@ class PreferenceHelperTest {
    */
   @Test
   void testGetParticipantValidator_noPreferenceValue_emptyString() {
-    // Set up test scenario.
-    preferences.remove("participantValidator");
-
     // Call the code under test.
     String participantValidator = PreferenceHelper.getParticipantValidator();
 
@@ -297,9 +267,6 @@ class PreferenceHelperTest {
    */
   @Test
   void testGetNumberOfGrids_noPreferenceValue_zero() {
-    // Set up test scenario.
-    preferences.remove("gridsTotalNumber");
-
     // Call the code under test.
     int numberOfGrids = PreferenceHelper.getNumberOfGrids();
 
