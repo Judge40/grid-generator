@@ -48,11 +48,12 @@ public class PreferenceHelper {
   private static final String PARTICIPANT_GROUPING_THRESHOLD = "participantGroupingThreshold";
 
   private static final String GRIDS_TOTAL_NUMBER = "gridsTotalNumber";
+  private static final String HEATS_TOTAL_NUMBER = "heatsTotalNumber";
 
   /**
-   * Initialize the preferences with default values if they are not already present. TODO: Use XML
-   * import to populate the preferences.
+   * Initialize the preferences with default values if they are not already present.
    */
+  // TODO: Use XML import to populate the preferences.
   public static void initializePreferences()
     throws BackingStoreException, ClassNotFoundException, IOException {
     if (getObject(PARTICIPANT_CLASS_NAMES, null) == null) {
@@ -74,6 +75,10 @@ public class PreferenceHelper {
 
     if (PREFERENCES.getInt(GRIDS_TOTAL_NUMBER, -1) == -1) {
       setNumberOfGrids(8);
+    }
+
+    if (PREFERENCES.getInt(HEATS_TOTAL_NUMBER, -1) == -1) {
+      setNumberOfHeats(3);
     }
   }
 
@@ -206,6 +211,24 @@ public class PreferenceHelper {
    */
   public static void setNumberOfGrids(int numberOfGrids) {
     PREFERENCES.putInt(GRIDS_TOTAL_NUMBER, numberOfGrids);
+  }
+
+  /**
+   * Get the total number of heats.
+   *
+   * @return The number of heats, defaults to 0 if not set.
+   */
+  public static int getNumberOfHeats() {
+    return PREFERENCES.getInt(HEATS_TOTAL_NUMBER, 0);
+  }
+
+  /**
+   * Set the total number of heats.
+   *
+   * @param numberOfHeats The number of heats.
+   */
+  public static void setNumberOfHeats(int numberOfHeats) {
+    PREFERENCES.putInt(HEATS_TOTAL_NUMBER, numberOfHeats);
   }
 
   /**

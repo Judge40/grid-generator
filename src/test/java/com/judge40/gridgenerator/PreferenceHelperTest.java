@@ -86,6 +86,10 @@ class PreferenceHelperTest {
     int numberOfGrids = PreferenceHelper.getNumberOfGrids();
     MatcherAssert.assertThat("The number of grids did not match the expected value.", numberOfGrids,
       CoreMatchers.is(8));
+
+    int numberOfHeats = PreferenceHelper.getNumberOfHeats();
+    MatcherAssert.assertThat("The number of heats did not match the expected value.", numberOfHeats,
+      CoreMatchers.is(3));
   }
 
   /**
@@ -100,6 +104,7 @@ class PreferenceHelperTest {
     PreferenceHelper.setParticipantGroupingFilter("participantGroupingFilter");
     PreferenceHelper.setParticipantGroupingThreshold(10);
     PreferenceHelper.setNumberOfGrids(40);
+    PreferenceHelper.setNumberOfHeats(5);
 
     // Call the method under test.
     PreferenceHelper.initializePreferences();
@@ -124,6 +129,10 @@ class PreferenceHelperTest {
     int numberOfGrids = PreferenceHelper.getNumberOfGrids();
     MatcherAssert.assertThat("The number of grids did not match the expected value.", numberOfGrids,
       CoreMatchers.is(40));
+
+    int numberOfHeats = PreferenceHelper.getNumberOfHeats();
+    MatcherAssert.assertThat("The number of heats did not match the expected value.", numberOfHeats,
+      CoreMatchers.is(5));
   }
 
   /**
@@ -365,5 +374,34 @@ class PreferenceHelperTest {
     // Perform assertions.
     MatcherAssert.assertThat("The number of grids did not match the expected value.", numberOfGrids,
       CoreMatchers.is(40));
+  }
+
+  /**
+   * Test that zero is returned when there is no preference value set.
+   */
+  @Test
+  void testGetNumberOfHeats_noPreferenceValue_zero() {
+    // Call the code under test.
+    int numberOfHeats = PreferenceHelper.getNumberOfHeats();
+
+    // Perform assertions.
+    MatcherAssert.assertThat("The number of heats did not match the expected value.", numberOfHeats,
+      CoreMatchers.is(0));
+  }
+
+  /**
+   * Test that the preference value is returned when there is a preference value set.
+   */
+  @Test
+  void testGetNumberOfHeats_hasPreferenceValue_preferenceValue() {
+    // Set up test scenario.
+    PreferenceHelper.setNumberOfHeats(5);
+
+    // Call the code under test.
+    int numberOfHeats = PreferenceHelper.getNumberOfHeats();
+
+    // Perform assertions.
+    MatcherAssert.assertThat("The number of heats did not match the expected value.", numberOfHeats,
+      CoreMatchers.is(5));
   }
 }

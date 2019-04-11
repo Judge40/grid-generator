@@ -430,6 +430,10 @@ class GridGeneratorTest {
     int numberOfGrids = PreferenceHelper.getNumberOfGrids();
     MatcherAssert.assertThat("The number of grids did not match the expected value.", numberOfGrids,
       CoreMatchers.not(0));
+
+    int numberOfHeats = PreferenceHelper.getNumberOfHeats();
+    MatcherAssert.assertThat("The number of heats did not match the expected value.", numberOfHeats,
+      CoreMatchers.not(0));
   }
 
   /**
@@ -444,6 +448,7 @@ class GridGeneratorTest {
     PreferenceHelper.setParticipantGroupingFilter("participantGroupingFilter");
     PreferenceHelper.setParticipantGroupingThreshold(10);
     PreferenceHelper.setNumberOfGrids(40);
+    PreferenceHelper.setNumberOfHeats(5);
 
     // Call the method under test.
     robot.interact(() -> {
@@ -474,5 +479,9 @@ class GridGeneratorTest {
     int numberOfGrids = PreferenceHelper.getNumberOfGrids();
     MatcherAssert.assertThat("The number of grids did not match the expected value.", numberOfGrids,
       CoreMatchers.is(40));
+
+    int numberOfHeats = PreferenceHelper.getNumberOfHeats();
+    MatcherAssert.assertThat("The number of heats did not match the expected value.", numberOfHeats,
+      CoreMatchers.is(5));
   }
 }
