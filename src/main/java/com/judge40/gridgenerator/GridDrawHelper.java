@@ -29,6 +29,7 @@ import java.util.Objects;
 import java.util.Random;
 import java.util.Set;
 import java.util.prefs.BackingStoreException;
+import java.util.stream.Collectors;
 
 /**
  * A helper with methods for performing grid draws.
@@ -50,24 +51,16 @@ public class GridDrawHelper {
     throws BackingStoreException, IOException, ClassNotFoundException {
     List<String> participants = PreferenceHelper.getClassParticipants(className);
 
-    int maxGrids = PreferenceHelper.getNumberOfGrids();
-    int gridSize = maxGrids - excludedGrids.size();
-
-    if (gridSize <= 0 || participants.isEmpty()) {
+    if (participants.isEmpty()) {
       return Collections.emptyList();
     }
 
     // Randomize the participants.
     randomizeParticipants(participants, excludedGrids);
 
-    List<List<String>> races = splitParticipants(participants, gridSize);
+    List<List<String>> races = splitCombinedParticipants(participants, excludedGrids.size());
 
     for (List<String> race : races) {
-      // Pad the race's grids with empty values to fill the available grids.
-      while (race.size() < gridSize) {
-        race.add("");
-      }
-
       // Randomize the race's participants.
       randomizeParticipants(race, excludedGrids);
 
@@ -81,20 +74,70 @@ public class GridDrawHelper {
   }
 
   /**
-   * Splits the participants in to roughly equal races based on the number of available grids.
+   * Splits the participants in to groups based on the grouping filter and then in to roughly equal
+   * races based on the number of available grids, races will be padded with empty strings to fill
+   * the available grids.
    *
    * @param participants The participants to split.
-   * @param availableGrids The number of available grids.
+   * @param numberOfExcludedGrids The number of excluded grids.
    * @return A list of participant lists.
    */
-  private static List<List<String>> splitParticipants(List<String> participants,
-    int availableGrids) {
-    if (availableGrids >= participants.size()) {
+  private static List<List<String>> splitCombinedParticipants(List<String> participants,
+    int numberOfExcludedGrids) {
+
+    // Check if a split needs to be done based on the grouping filter.
+    String groupingFilter = PreferenceHelper.getParticipantGroupingFilter();
+    int groupingThreshold = PreferenceHelper.getParticipantGroupingThreshold();
+
+    List<String> ungroupedParticipants = participants.stream()
+      .filter(participant -> !participant.matches(groupingFilter))
+      .collect(Collectors.toList());
+
+    List<List<String>> races = new ArrayList<>();
+
+    // If there are enough ungrouped participants to meet the threshold then split them.
+    if (!ungroupedParticipants.isEmpty() && ungroupedParticipants.size() >= groupingThreshold) {
+      participants = new ArrayList<>(participants);
+      participants.removeAll(ungroupedParticipants);
+      races.addAll(splitGroupedParticipants(ungroupedParticipants, numberOfExcludedGrids));
+    }
+
+    races.addAll(0, splitGroupedParticipants(participants, numberOfExcludedGrids));
+    return races;
+  }
+
+  /**
+   * Splits the pre-grouped participants in to roughly equal races based on the number of available
+   * grids, races will be padded with empty strings to fill the available grids.
+   *
+   * @param participants The participants to split.
+   * @param numberOfExcludedGrids The number of excluded grids.
+   * @return A list of participant lists.
+   */
+  private static List<List<String>> splitGroupedParticipants(List<String> participants,
+    int numberOfExcludedGrids) {
+    int numberOfGrids = PreferenceHelper.getNumberOfGrids();
+    int numberOfAvailableGrids = numberOfGrids - numberOfExcludedGrids;
+
+    // If there are no available grids or no participants return empty list.
+    if (numberOfAvailableGrids <= 0 || participants.isEmpty()) {
+      return Collections.emptyList();
+    }
+
+    // If there are enough grids without performing a split then return the whole list.
+    if (numberOfAvailableGrids >= participants.size()) {
+      participants = new ArrayList<>(participants);
+
+      // Pad the race's grids with empty values to fill the available grids.
+      while (participants.size() < numberOfAvailableGrids) {
+        participants.add("");
+      }
+
       return Collections.singletonList(participants);
     }
 
     int numberOfParticipants = participants.size();
-    int numberOfRaces = (int) Math.ceil((double) numberOfParticipants / availableGrids);
+    int numberOfRaces = (int) Math.ceil((double) numberOfParticipants / numberOfAvailableGrids);
     int baseSizeOfRace = numberOfParticipants / numberOfRaces;
     int remainder = numberOfParticipants % numberOfRaces;
 
@@ -102,7 +145,13 @@ public class GridDrawHelper {
 
     for (int i = 0; i < numberOfParticipants; ) {
       int sizeOfRace = baseSizeOfRace + (remainder-- > 0 ? 1 : 0);
-      List<String> subParticipants = participants.subList(i, i += sizeOfRace);
+      List<String> subParticipants = new ArrayList<>(participants.subList(i, i += sizeOfRace));
+
+      // Pad the race's grids with empty values to fill the available grids.
+      while (subParticipants.size() < numberOfAvailableGrids) {
+        subParticipants.add("");
+      }
+
       splitParticipants.add(new ArrayList<>(subParticipants));
     }
 

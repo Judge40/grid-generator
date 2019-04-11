@@ -276,4 +276,160 @@ class GridDrawHelperTest {
     MatcherAssert.assertThat("The race participant did not match the expected value.", race.get(9),
       CoreMatchers.is("participant1"));
   }
+
+  /**
+   * Test that participants are not grouped when the number of ungrouped participants is less than the threshold.
+   */
+  @Test
+  void testDrawGridsForClass_lessThanGroupFilterThreshold_ungroupedRaces()
+    throws BackingStoreException, IOException, ClassNotFoundException {
+    // Set up the test scenario.
+    PreferenceHelper.setClassParticipants("testClass",
+      Arrays.asList("grouped1", "grouped2", "grouped3", "grouped4", "grouped5", "grouped6",
+        "grouped7", "grouped8", "grouped9",
+        "ungrouped1", "ungrouped2", "ungrouped3", "ungrouped4", "ungrouped5", "ungrouped6",
+        "ungrouped7", "ungrouped8", "ungrouped9"));
+    PreferenceHelper.setNumberOfGrids(10);
+
+    PreferenceHelper.setParticipantGroupingFilter("grouped\\d");
+    PreferenceHelper.setParticipantGroupingThreshold(10);
+
+    // Call the code under test.
+    List<List<String>> races = GridDrawHelper.drawGridsForClass("testClass",
+      Collections.singleton(3));
+
+    // Perform assertions.
+    MatcherAssert.assertThat("The number of races did not match the expected value.", races.size(),
+      CoreMatchers.is(2));
+
+    List<String> race = races.get(0);
+    MatcherAssert.assertThat("The number of race participants did not match the expected value.", race.size(), CoreMatchers.is(10));
+    MatcherAssert.assertThat("The race participant did not match the expected value.", race.get(0), CoreMatchers.is("ungrouped3"));
+    MatcherAssert.assertThat("The race participant did not match the expected value.", race.get(1), CoreMatchers.is("ungrouped6"));
+    MatcherAssert.assertThat("The race participant did not match the expected value.", race.get(2), CoreMatchers.is(""));
+    MatcherAssert.assertThat("The race participant did not match the expected value.", race.get(3), CoreMatchers.is("grouped8"));
+    MatcherAssert.assertThat("The race participant did not match the expected value.", race.get(4), CoreMatchers.is("ungrouped2"));
+    MatcherAssert.assertThat("The race participant did not match the expected value.", race.get(5), CoreMatchers.is("ungrouped8"));
+    MatcherAssert.assertThat("The race participant did not match the expected value.", race.get(6), CoreMatchers.is("ungrouped1"));
+    MatcherAssert.assertThat("The race participant did not match the expected value.", race.get(7), CoreMatchers.is("grouped9"));
+    MatcherAssert.assertThat("The race participant did not match the expected value.", race.get(8), CoreMatchers.is("ungrouped4"));
+    MatcherAssert.assertThat("The race participant did not match the expected value.", race.get(9), CoreMatchers.is("grouped5"));
+
+    race = races.get(1);
+    MatcherAssert.assertThat("The number of race participants did not match the expected value.", race.size(), CoreMatchers.is(10));
+    MatcherAssert.assertThat("The race participant did not match the expected value.", race.get(0), CoreMatchers.is("ungrouped9"));
+    MatcherAssert.assertThat("The race participant did not match the expected value.", race.get(1), CoreMatchers.is("grouped4"));
+    MatcherAssert.assertThat("The race participant did not match the expected value.", race.get(2), CoreMatchers.is(""));
+    MatcherAssert.assertThat("The race participant did not match the expected value.", race.get(3), CoreMatchers.is("grouped7"));
+    MatcherAssert.assertThat("The race participant did not match the expected value.", race.get(4), CoreMatchers.is("grouped6"));
+    MatcherAssert.assertThat("The race participant did not match the expected value.", race.get(5), CoreMatchers.is("ungrouped7"));
+    MatcherAssert.assertThat("The race participant did not match the expected value.", race.get(6), CoreMatchers.is("grouped2"));
+    MatcherAssert.assertThat("The race participant did not match the expected value.", race.get(7), CoreMatchers.is("grouped1"));
+    MatcherAssert.assertThat("The race participant did not match the expected value.", race.get(8), CoreMatchers.is("ungrouped5"));
+    MatcherAssert.assertThat("The race participant did not match the expected value.", race.get(9), CoreMatchers.is("grouped3"));
+  }
+
+  /**
+   * Test that participants are grouped when the number of ungrouped participants is equal to the threshold.
+   */
+  @Test
+  void testDrawGridsForClass_equalToGroupFilterThreshold_groupedRaces()
+    throws BackingStoreException, IOException, ClassNotFoundException {
+    // Set up the test scenario.
+    PreferenceHelper.setClassParticipants("testClass",
+      Arrays.asList("grouped1", "grouped2", "grouped3", "grouped4", "grouped5", "grouped6",
+        "grouped7", "grouped8", "grouped9",
+        "ungrouped1", "ungrouped2", "ungrouped3", "ungrouped4", "ungrouped5", "ungrouped6",
+        "ungrouped7", "ungrouped8", "ungrouped9"));
+    PreferenceHelper.setNumberOfGrids(10);
+
+    PreferenceHelper.setParticipantGroupingFilter("grouped\\d");
+    PreferenceHelper.setParticipantGroupingThreshold(9);
+
+    // Call the code under test.
+    List<List<String>> races = GridDrawHelper.drawGridsForClass("testClass",
+      Collections.singleton(5));
+
+    // Perform assertions.
+    MatcherAssert.assertThat("The number of races did not match the expected value.", races.size(),
+      CoreMatchers.is(2));
+
+    List<String> race = races.get(0);
+    MatcherAssert.assertThat("The number of race participants did not match the expected value.", race.size(), CoreMatchers.is(10));
+    MatcherAssert.assertThat("The race participant did not match the expected value.", race.get(0), CoreMatchers.is("grouped9"));
+    MatcherAssert.assertThat("The race participant did not match the expected value.", race.get(1), CoreMatchers.is("grouped6"));
+    MatcherAssert.assertThat("The race participant did not match the expected value.", race.get(2), CoreMatchers.is("grouped3"));
+    MatcherAssert.assertThat("The race participant did not match the expected value.", race.get(3), CoreMatchers.is("grouped4"));
+    MatcherAssert.assertThat("The race participant did not match the expected value.", race.get(4), CoreMatchers.is(""));
+    MatcherAssert.assertThat("The race participant did not match the expected value.", race.get(5), CoreMatchers.is("grouped1"));
+    MatcherAssert.assertThat("The race participant did not match the expected value.", race.get(6), CoreMatchers.is("grouped7"));
+    MatcherAssert.assertThat("The race participant did not match the expected value.", race.get(7), CoreMatchers.is("grouped2"));
+    MatcherAssert.assertThat("The race participant did not match the expected value.", race.get(8), CoreMatchers.is("grouped8"));
+    MatcherAssert.assertThat("The race participant did not match the expected value.", race.get(9), CoreMatchers.is("grouped5"));
+
+    race = races.get(1);
+    MatcherAssert.assertThat("The number of race participants did not match the expected value.", race.size(), CoreMatchers.is(10));
+    MatcherAssert.assertThat("The race participant did not match the expected value.", race.get(0), CoreMatchers.is("ungrouped4"));
+    MatcherAssert.assertThat("The race participant did not match the expected value.", race.get(1), CoreMatchers.is("ungrouped2"));
+    MatcherAssert.assertThat("The race participant did not match the expected value.", race.get(2), CoreMatchers.is("ungrouped8"));
+    MatcherAssert.assertThat("The race participant did not match the expected value.", race.get(3), CoreMatchers.is("ungrouped6"));
+    MatcherAssert.assertThat("The race participant did not match the expected value.", race.get(4), CoreMatchers.is(""));
+    MatcherAssert.assertThat("The race participant did not match the expected value.", race.get(5), CoreMatchers.is("ungrouped9"));
+    MatcherAssert.assertThat("The race participant did not match the expected value.", race.get(6), CoreMatchers.is("ungrouped7"));
+    MatcherAssert.assertThat("The race participant did not match the expected value.", race.get(7), CoreMatchers.is("ungrouped3"));
+    MatcherAssert.assertThat("The race participant did not match the expected value.", race.get(8), CoreMatchers.is("ungrouped1"));
+    MatcherAssert.assertThat("The race participant did not match the expected value.", race.get(9), CoreMatchers.is("ungrouped5"));
+  }
+
+  /**
+   * Test that participants are grouped when the number of ungrouped participants is greater than the threshold.
+   */
+  @Test
+  void testDrawGridsForClass_greaterThanGroupFilterThreshold_groupedRaces()
+    throws BackingStoreException, IOException, ClassNotFoundException {
+    // Set up the test scenario.
+    PreferenceHelper.setClassParticipants("testClass",
+      Arrays.asList("grouped1", "grouped2", "grouped3", "grouped4", "grouped5", "grouped6",
+        "grouped7", "grouped8", "grouped9",
+        "ungrouped1", "ungrouped2", "ungrouped3", "ungrouped4", "ungrouped5", "ungrouped6",
+        "ungrouped7", "ungrouped8", "ungrouped9"));
+    PreferenceHelper.setNumberOfGrids(10);
+
+    PreferenceHelper.setParticipantGroupingFilter("grouped\\d");
+    PreferenceHelper.setParticipantGroupingThreshold(8);
+
+    // Call the code under test.
+    List<List<String>> races = GridDrawHelper.drawGridsForClass("testClass",
+      Collections.singleton(7));
+
+    // Perform assertions.
+    MatcherAssert.assertThat("The number of races did not match the expected value.", races.size(),
+      CoreMatchers.is(2));
+
+    List<String> race = races.get(0);
+    MatcherAssert.assertThat("The number of race participants did not match the expected value.", race.size(), CoreMatchers.is(10));
+    MatcherAssert.assertThat("The race participant did not match the expected value.", race.get(0), CoreMatchers.is("grouped4"));
+    MatcherAssert.assertThat("The race participant did not match the expected value.", race.get(1), CoreMatchers.is("grouped5"));
+    MatcherAssert.assertThat("The race participant did not match the expected value.", race.get(2), CoreMatchers.is("grouped6"));
+    MatcherAssert.assertThat("The race participant did not match the expected value.", race.get(3), CoreMatchers.is("grouped1"));
+    MatcherAssert.assertThat("The race participant did not match the expected value.", race.get(4), CoreMatchers.is("grouped9"));
+    MatcherAssert.assertThat("The race participant did not match the expected value.", race.get(5), CoreMatchers.is("grouped7"));
+    MatcherAssert.assertThat("The race participant did not match the expected value.", race.get(6), CoreMatchers.is(""));
+    MatcherAssert.assertThat("The race participant did not match the expected value.", race.get(7), CoreMatchers.is("grouped8"));
+    MatcherAssert.assertThat("The race participant did not match the expected value.", race.get(8), CoreMatchers.is("grouped2"));
+    MatcherAssert.assertThat("The race participant did not match the expected value.", race.get(9), CoreMatchers.is("grouped3"));
+
+    race = races.get(1);
+    MatcherAssert.assertThat("The number of race participants did not match the expected value.", race.size(), CoreMatchers.is(10));
+    MatcherAssert.assertThat("The race participant did not match the expected value.", race.get(0), CoreMatchers.is("ungrouped8"));
+    MatcherAssert.assertThat("The race participant did not match the expected value.", race.get(1), CoreMatchers.is("ungrouped7"));
+    MatcherAssert.assertThat("The race participant did not match the expected value.", race.get(2), CoreMatchers.is("ungrouped1"));
+    MatcherAssert.assertThat("The race participant did not match the expected value.", race.get(3), CoreMatchers.is("ungrouped6"));
+    MatcherAssert.assertThat("The race participant did not match the expected value.", race.get(4), CoreMatchers.is("ungrouped3"));
+    MatcherAssert.assertThat("The race participant did not match the expected value.", race.get(5), CoreMatchers.is("ungrouped4"));
+    MatcherAssert.assertThat("The race participant did not match the expected value.", race.get(6), CoreMatchers.is(""));
+    MatcherAssert.assertThat("The race participant did not match the expected value.", race.get(7), CoreMatchers.is("ungrouped9"));
+    MatcherAssert.assertThat("The race participant did not match the expected value.", race.get(8), CoreMatchers.is("ungrouped5"));
+    MatcherAssert.assertThat("The race participant did not match the expected value.", race.get(9), CoreMatchers.is("ungrouped2"));
+  }
 }
