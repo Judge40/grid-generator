@@ -75,6 +75,14 @@ class PreferenceHelperTest {
     MatcherAssert.assertThat("The participant validator did not match the expected value.",
       participantValidator, CoreMatchers.is("[A-Z]+\\d+[A-Z]*|\\d+F"));
 
+    String participantGroupingFilter = PreferenceHelper.getParticipantGroupingFilter();
+    MatcherAssert.assertThat("The participant grouping filter did not match the expected value.",
+      participantGroupingFilter, CoreMatchers.is("ARC\\d+|LM\\d+|NW\\d+"));
+
+    int participantGroupingThreshold = PreferenceHelper.getParticipantGroupingThreshold();
+    MatcherAssert.assertThat("The participant grouping threshold did not match the expected value.",
+      participantGroupingThreshold, CoreMatchers.is(4));
+
     int numberOfGrids = PreferenceHelper.getNumberOfGrids();
     MatcherAssert.assertThat("The number of grids did not match the expected value.", numberOfGrids,
       CoreMatchers.is(8));
@@ -87,8 +95,10 @@ class PreferenceHelperTest {
   void testInitializePreferences_hasPreferenceValues_preferencesNotInitialized()
     throws BackingStoreException, ClassNotFoundException, IOException {
     // Set up test scenario.
-    PreferenceHelper.setParticipantClassNames(Arrays.asList("value1", "value2"));
-    PreferenceHelper.setParticipantValidator("preferenceValue");
+    PreferenceHelper.setParticipantClassNames(Arrays.asList("class1", "class2"));
+    PreferenceHelper.setParticipantValidator("participantValidator");
+    PreferenceHelper.setParticipantGroupingFilter("participantGroupingFilter");
+    PreferenceHelper.setParticipantGroupingThreshold(10);
     PreferenceHelper.setNumberOfGrids(40);
 
     // Call the method under test.
@@ -97,11 +107,19 @@ class PreferenceHelperTest {
     // Perform assertions.
     List<String> participantClassNames = PreferenceHelper.getParticipantClassNames();
     MatcherAssert.assertThat("The participant class names did not match the expected value.",
-      participantClassNames, CoreMatchers.is(Arrays.asList("value1", "value2")));
+      participantClassNames, CoreMatchers.is(Arrays.asList("class1", "class2")));
 
     String participantValidator = PreferenceHelper.getParticipantValidator();
     MatcherAssert.assertThat("The participant validator did not match the expected value.",
-      participantValidator, CoreMatchers.is("preferenceValue"));
+      participantValidator, CoreMatchers.is("participantValidator"));
+
+    String participantGroupingFilter = PreferenceHelper.getParticipantGroupingFilter();
+    MatcherAssert.assertThat("The participant grouping filter did not match the expected value.",
+      participantGroupingFilter, CoreMatchers.is("participantGroupingFilter"));
+
+    int participantGroupingThreshold = PreferenceHelper.getParticipantGroupingThreshold();
+    MatcherAssert.assertThat("The participant grouping threshold did not match the expected value.",
+      participantGroupingThreshold, CoreMatchers.is(10));
 
     int numberOfGrids = PreferenceHelper.getNumberOfGrids();
     MatcherAssert.assertThat("The number of grids did not match the expected value.", numberOfGrids,
@@ -260,6 +278,64 @@ class PreferenceHelperTest {
     // Perform assertions.
     MatcherAssert.assertThat("The participant validator did not match the expected value.",
       participantValidator, CoreMatchers.is("preferenceValue"));
+  }
+
+  /**
+   * Test that an empty string is returned when there is no preference value set.
+   */
+  @Test
+  void testGetParticipantGroupingFilter_noPreferenceValue_emptyString() {
+    // Call the code under test.
+    String participantGroupingFilter = PreferenceHelper.getParticipantGroupingFilter();
+
+    // Perform assertions.
+    MatcherAssert.assertThat("The participant grouping filter did not match the expected value.",
+      participantGroupingFilter, CoreMatchers.is(""));
+  }
+
+  /**
+   * Test that the preference value is returned when there is a preference value set.
+   */
+  @Test
+  void testGetParticipantGroupingFilter_hasPreferenceValue_preferenceValue() {
+    // Set up test scenario.
+    PreferenceHelper.setParticipantGroupingFilter("groupingFilter1");
+
+    // Call the code under test.
+    String participantGroupingFilter = PreferenceHelper.getParticipantGroupingFilter();
+
+    // Perform assertions.
+    MatcherAssert.assertThat("The participant grouping filter did not match the expected value.",
+      participantGroupingFilter, CoreMatchers.is("groupingFilter1"));
+  }
+
+  /**
+   * Test that zero is returned when there is no preference value set.
+   */
+  @Test
+  void testGetParticipantGroupingThreshold_noPreferenceValue_zero() {
+    // Call the code under test.
+    int participantGroupingThreshold = PreferenceHelper.getNumberOfGrids();
+
+    // Perform assertions.
+    MatcherAssert.assertThat("The participant grouping threshold did not match the expected value.",
+      participantGroupingThreshold, CoreMatchers.is(0));
+  }
+
+  /**
+   * Test that the preference value is returned when there is a preference value set.
+   */
+  @Test
+  void testGetParticipantGroupingThreshold_hasPreferenceValue_preferenceValue() {
+    // Set up test scenario.
+    PreferenceHelper.setParticipantGroupingThreshold(10);
+
+    // Call the code under test.
+    int participantGroupingThreshold = PreferenceHelper.getParticipantGroupingThreshold();
+
+    // Perform assertions.
+    MatcherAssert.assertThat("The participant grouping threshold did not match the expected value.",
+      participantGroupingThreshold, CoreMatchers.is(10));
   }
 
   /**

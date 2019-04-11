@@ -44,15 +44,17 @@ public class PreferenceHelper {
   private static final String CLASS_PARTICIPANTS = "participants/%s";
   private static final String PARTICIPANT_CLASS_NAMES = "participantClassNames";
   private static final String PARTICIPANT_VALIDATOR = "participantValidator";
+  private static final String PARTICIPANT_GROUPING_FILTER = "participantGroupingFilter";
+  private static final String PARTICIPANT_GROUPING_THRESHOLD = "participantGroupingThreshold";
 
   private static final String GRIDS_TOTAL_NUMBER = "gridsTotalNumber";
 
   /**
-   * Initialize the preferences with default values if they are not already present.
-   * TODO: Use XML import to populate the preferences.
+   * Initialize the preferences with default values if they are not already present. TODO: Use XML
+   * import to populate the preferences.
    */
   public static void initializePreferences()
-      throws BackingStoreException, ClassNotFoundException, IOException {
+    throws BackingStoreException, ClassNotFoundException, IOException {
     if (getObject(PARTICIPANT_CLASS_NAMES, null) == null) {
       setParticipantClassNames(Arrays.asList("Class 1", "Class 2", "Class 3", "Class 4", "Class 5",
         "Class 6", "Class 7", "Class 8", "Class 9", "Class 10"));
@@ -60,6 +62,14 @@ public class PreferenceHelper {
 
     if (PREFERENCES.get(PARTICIPANT_VALIDATOR, null) == null) {
       setParticipantValidator("[A-Z]+\\d+[A-Z]*|\\d+F");
+    }
+
+    if (PREFERENCES.get(PARTICIPANT_GROUPING_FILTER, null) == null) {
+      setParticipantGroupingFilter("ARC\\d+|LM\\d+|NW\\d+");
+    }
+
+    if (PREFERENCES.getInt(PARTICIPANT_GROUPING_THRESHOLD, -1) == -1) {
+      setParticipantGroupingThreshold(4);
     }
 
     if (PREFERENCES.getInt(GRIDS_TOTAL_NUMBER, -1) == -1) {
@@ -78,7 +88,7 @@ public class PreferenceHelper {
    * @throws IOException If the preference values could not be read.
    */
   public static List<String> getClassParticipants(String className)
-      throws BackingStoreException, ClassNotFoundException, IOException {
+    throws BackingStoreException, ClassNotFoundException, IOException {
     Object preferenceObject = getObject(String.format(CLASS_PARTICIPANTS, className),
       Collections.emptyList());
     return ((List<?>) preferenceObject).stream().map(item -> (String) item)
@@ -108,7 +118,7 @@ public class PreferenceHelper {
    * @throws IOException If the preference values could not be read.
    */
   public static List<String> getParticipantClassNames()
-      throws BackingStoreException, ClassNotFoundException, IOException {
+    throws BackingStoreException, ClassNotFoundException, IOException {
     Object preferenceObject = getObject(PARTICIPANT_CLASS_NAMES, Collections.emptyList());
     return ((List<?>) preferenceObject).stream().map(item -> (String) item)
       .collect(Collectors.toList());
@@ -122,7 +132,7 @@ public class PreferenceHelper {
    * @throws IOException If the object could not be converted to a byte array.
    */
   public static void setParticipantClassNames(List<String> participantClassNames)
-      throws BackingStoreException, IOException {
+    throws BackingStoreException, IOException {
     putObject(PARTICIPANT_CLASS_NAMES, participantClassNames);
   }
 
@@ -145,7 +155,44 @@ public class PreferenceHelper {
   }
 
   /**
+   * Get the grouping filter for participants.
+   *
+   * @return The grouping filter RegEx, defaults to an empty string if not set.
+   */
+  public static String getParticipantGroupingFilter() {
+    return PREFERENCES.get(PARTICIPANT_GROUPING_FILTER, "");
+  }
+
+  /**
+   * Set the grouping filter for participants.
+   *
+   * @param participantGroupingFilter The grouping filter RegEx.
+   */
+  public static void setParticipantGroupingFilter(String participantGroupingFilter) {
+    PREFERENCES.put(PARTICIPANT_GROUPING_FILTER, participantGroupingFilter);
+  }
+
+  /**
+   * Get the grouping threshold for participants.
+   *
+   * @return The grouping threshold, defaults to zero if not set.
+   */
+  public static int getParticipantGroupingThreshold() {
+    return PREFERENCES.getInt(PARTICIPANT_GROUPING_THRESHOLD, 0);
+  }
+
+  /**
+   * Set the grouping threshold for participants.
+   *
+   * @param participantGroupingThreshold The grouping threshold.
+   */
+  public static void setParticipantGroupingThreshold(int participantGroupingThreshold) {
+    PREFERENCES.putInt(PARTICIPANT_GROUPING_THRESHOLD, participantGroupingThreshold);
+  }
+
+  /**
    * Get the total number of grids.
+   *
    * @return The number of grids, defaults to 0 if not set.
    */
   public static int getNumberOfGrids() {
@@ -154,6 +201,7 @@ public class PreferenceHelper {
 
   /**
    * Set the total number of grids.
+   *
    * @param numberOfGrids The number of grids.
    */
   public static void setNumberOfGrids(int numberOfGrids) {
@@ -173,7 +221,7 @@ public class PreferenceHelper {
    * @throws IOException If the preference values could not be read.
    */
   private static Object getObject(String key, Object defaultValue)
-      throws BackingStoreException, ClassNotFoundException, IOException {
+    throws BackingStoreException, ClassNotFoundException, IOException {
     Preferences preferenceNode = PREFERENCES.node(key);
     int numberOfChunks = preferenceNode.keys().length;
 
@@ -216,7 +264,7 @@ public class PreferenceHelper {
    * @throws IOException If the object could not be converted to a byte array.
    */
   private static void putObject(String key, Object object)
-      throws BackingStoreException, IOException {
+    throws BackingStoreException, IOException {
     try (ByteArrayOutputStream baos = new ByteArrayOutputStream();
       ObjectOutputStream oos = new ObjectOutputStream(baos)) {
       oos.writeObject(object);

@@ -419,9 +419,17 @@ class GridGeneratorTest {
     MatcherAssert.assertThat("The participant validator did not match the expected value.",
       participantValidator, CoreMatchers.notNullValue());
 
+    String participantGroupingFilter = PreferenceHelper.getParticipantGroupingFilter();
+    MatcherAssert.assertThat("The participant grouping filter did not match the expected value.",
+      participantGroupingFilter, CoreMatchers.notNullValue());
+
+    int participantGroupingThreshold = PreferenceHelper.getParticipantGroupingThreshold();
+    MatcherAssert.assertThat("The participant grouping threshold did not match the expected value.",
+      participantGroupingThreshold, CoreMatchers.not(0));
+
     int numberOfGrids = PreferenceHelper.getNumberOfGrids();
     MatcherAssert.assertThat("The number of grids did not match the expected value.", numberOfGrids,
-      CoreMatchers.notNullValue());
+      CoreMatchers.not(0));
   }
 
   /**
@@ -431,8 +439,10 @@ class GridGeneratorTest {
   void testStart_hasPreferenceValues_preferencesNotInitialized(FxRobot robot)
     throws BackingStoreException, ClassNotFoundException, IOException {
     // Set up test scenario.
-    PreferenceHelper.setParticipantClassNames(Arrays.asList("Class 1", "Class 2"));
-    PreferenceHelper.setParticipantValidator("validator");
+    PreferenceHelper.setParticipantClassNames(Arrays.asList("class1", "class2"));
+    PreferenceHelper.setParticipantValidator("participantValidator");
+    PreferenceHelper.setParticipantGroupingFilter("participantGroupingFilter");
+    PreferenceHelper.setParticipantGroupingThreshold(10);
     PreferenceHelper.setNumberOfGrids(40);
 
     // Call the method under test.
@@ -447,11 +457,19 @@ class GridGeneratorTest {
     // Perform assertions.
     List<String> participantClassNames = PreferenceHelper.getParticipantClassNames();
     MatcherAssert.assertThat("The participant class names did not match the expected value.",
-      participantClassNames, CoreMatchers.is(Arrays.asList("Class 1", "Class 2")));
+      participantClassNames, CoreMatchers.is(Arrays.asList("class1", "class2")));
 
     String participantValidator = PreferenceHelper.getParticipantValidator();
     MatcherAssert.assertThat("The participant validator did not match the expected value.",
-      participantValidator, CoreMatchers.is("validator"));
+      participantValidator, CoreMatchers.is("participantValidator"));
+
+    String participantGroupingFilter = PreferenceHelper.getParticipantGroupingFilter();
+    MatcherAssert.assertThat("The participant grouping filter did not match the expected value.",
+      participantGroupingFilter, CoreMatchers.is(participantGroupingFilter));
+
+    int participantGroupingThreshold = PreferenceHelper.getParticipantGroupingThreshold();
+    MatcherAssert.assertThat("The participant grouping threshold did not match the expected value.",
+      participantGroupingThreshold, CoreMatchers.is(10));
 
     int numberOfGrids = PreferenceHelper.getNumberOfGrids();
     MatcherAssert.assertThat("The number of grids did not match the expected value.", numberOfGrids,
