@@ -36,7 +36,7 @@ dependencies {
     implementation "org.openjfx:javafx-graphics:11:$platform"
 
     // JMockit dependency.
-    testImplementation "org.jmockit:jmockit:1.42"
+    testImplementation "org.jmockit:jmockit:1.46"
 
     // JUnit dependencies.
     testImplementation "org.junit.jupiter:junit-jupiter-api:5.3.1"
