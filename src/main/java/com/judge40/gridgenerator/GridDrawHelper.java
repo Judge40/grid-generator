@@ -47,8 +47,33 @@ public class GridDrawHelper {
    * @throws IOException If the class's participants could not be retrieved.
    * @throws ClassNotFoundException If the class's participants could not be retrieved.
    */
-  public static List<List<String>> drawGridsForClass(String className, Set<Integer> excludedGrids)
+  public static List<List<List<String>>> drawGridsForClass(String className,
+    Set<Integer> excludedGrids)
     throws BackingStoreException, IOException, ClassNotFoundException {
+    int numberOfHeats = PreferenceHelper.getNumberOfHeats();
+    List<List<List<String>>> heats = new ArrayList<>();
+
+    for (int heat = 1; heat <= numberOfHeats; heat++) {
+      heats.add(drawGridsForClassAndHeat(className, heat, excludedGrids));
+    }
+
+    return heats;
+  }
+
+  /**
+   * Draw the grids for a given class, organizing the class's participants in to races of equal
+   * size.
+   *
+   * @param className The name of the class to perform a draw for.
+   * @param heatNumber The number of the heat to perform the draw for.
+   * @param excludedGrids The grid numbers which have been excluded.
+   * @return A list of lists of participants representing the races that have been drawn.
+   * @throws BackingStoreException If the class's participants could not be retrieved.
+   * @throws IOException If the class's participants could not be retrieved.
+   * @throws ClassNotFoundException If the class's participants could not be retrieved.
+   */
+  private static List<List<String>> drawGridsForClassAndHeat(String className, int heatNumber,
+    Set<Integer> excludedGrids) throws BackingStoreException, IOException, ClassNotFoundException {
     List<String> participants = PreferenceHelper.getClassParticipants(className);
 
     if (participants.isEmpty()) {
@@ -56,13 +81,13 @@ public class GridDrawHelper {
     }
 
     // Randomize the participants.
-    randomizeParticipants(participants, excludedGrids);
+    randomizeParticipants(participants, heatNumber, excludedGrids);
 
     List<List<String>> races = splitCombinedParticipants(participants, excludedGrids.size());
 
     for (List<String> race : races) {
       // Randomize the race's participants.
-      randomizeParticipants(race, excludedGrids);
+      randomizeParticipants(race, heatNumber, excludedGrids);
 
       // Insert the excluded grids.
       for (int excludedGrid : excludedGrids) {
@@ -164,10 +189,11 @@ public class GridDrawHelper {
    * @param participants The participants to randomize.
    * @param excludedGrids The grid numbers which have been excluded.
    */
-  private static void randomizeParticipants(List<String> participants, Set<Integer> excludedGrids) {
+  private static void randomizeParticipants(List<String> participants, int heatNumber,
+    Set<Integer> excludedGrids) {
     // Generate the seed based on variable factors and the current day.
     long daysSinceEpoch = LocalDate.now(ZoneId.of("Z")).toEpochDay();
-    int seed = Objects.hash(participants, excludedGrids, daysSinceEpoch);
+    int seed = Objects.hash(participants, heatNumber, excludedGrids, daysSinceEpoch);
 
     // Sort and then shuffle the participants.
     Collections.sort(participants);
