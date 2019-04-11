@@ -23,6 +23,7 @@ import com.judge40.gridgenerator.GridDrawHelper;
 import com.judge40.gridgenerator.PreferenceHelper;
 import java.io.IOException;
 import java.text.MessageFormat;
+import java.time.LocalDate;
 import java.util.List;
 import java.util.ListIterator;
 import java.util.ResourceBundle;
@@ -36,11 +37,13 @@ import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
+import javafx.print.PrinterJob;
 import javafx.scene.Node;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Alert.AlertType;
 import javafx.scene.control.CheckBox;
 import javafx.scene.control.ComboBox;
+import javafx.scene.control.Control;
 import javafx.scene.control.ListCell;
 import javafx.scene.control.ListView;
 import javafx.scene.control.Tab;
@@ -173,6 +176,11 @@ public class DrawGridsController {
         classTab.setContent(tabContent);
         ObservableList<Node> tabChildren = tabContent.getChildren();
 
+        // Add meeting and class headings.
+        tabChildren.add(new Text("NWAA Qualifier - " + LocalDate.now().toString())); // TODO: use preference or other input
+        tabChildren.add(new Text(participantClassName));
+
+        // Add heat headings and tables.
         for (ListIterator<List<List<String>>> raceIterator = heats.listIterator();
           raceIterator.hasNext(); ) {
           List<List<String>> races = raceIterator.next();
@@ -214,6 +222,28 @@ public class DrawGridsController {
       heatTable.getColumns().add(column);
     }
 
+    // Customize how the table is displayed.
+    heatTable.setSelectionModel(null);
+    heatTable.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY);
+    heatTable.setPrefSize(400, 200);
+    heatTable.setMinSize(Control.USE_PREF_SIZE, Control.USE_PREF_SIZE);
+    heatTable.setMaxSize(Control.USE_PREF_SIZE, Control.USE_PREF_SIZE);
+
     return heatTable;
+  }
+
+  /**
+   * Prints the currently displayed class's heats and races.
+   */
+  @FXML
+  private void printCurrentClass() {
+    // Get the current class tab.
+    Tab currentTab = drawnGridsDisplay.getSelectionModel().getSelectedItem();
+    VBox tabContent = (VBox) currentTab.getContent();
+
+    // Print the tab content using default printer and settings.
+    PrinterJob printerJob = PrinterJob.createPrinterJob();
+    printerJob.printPage(tabContent);
+    printerJob.endJob();
   }
 }

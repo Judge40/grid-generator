@@ -122,6 +122,11 @@ class DrawGridsControllerTest {
       "The excluded grid selector's label did not match the expected value.",
       selectorLabel.getText(), CoreMatchers.is("Excluded Grids"));
 
+    Labeled printCurrentButton = robot.lookup("#printCurrentClassButton").queryLabeled();
+    MatcherAssert.assertThat(
+      "The excluded grid selector's label did not match the expected value.",
+      printCurrentButton.getText(), CoreMatchers.is("Print Current"));
+
     Text heatText = robot.lookup("#heatTableText1").queryText();
     MatcherAssert.assertThat("The heat table's title text did not match the expected value.",
       heatText.getText(), CoreMatchers.is("Heat 1"));
@@ -163,6 +168,11 @@ class DrawGridsControllerTest {
     MatcherAssert.assertThat(
       "The excluded grid selector's label did not match the expected value.",
       selectorLabel.getText(), CoreMatchers.is("[!!! Éжçℓúδèδ Gřïδƨ ℓôř !!!]"));
+
+    Labeled printCurrentButton = robot.lookup("#printCurrentClassButton").queryLabeled();
+    MatcherAssert.assertThat(
+      "The excluded grid selector's label did not match the expected value.",
+      printCurrentButton.getText(), CoreMatchers.is("[!!! Þřïñƭ Çúřřèñƭ ℓôř !!!]"));
 
     Text heatText = robot.lookup("#heatTableText1").queryText();
     MatcherAssert.assertThat("The heat table's title text did not match the expected value.",
