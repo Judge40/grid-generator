@@ -54,7 +54,11 @@ public class GridDrawHelper {
     List<List<List<String>>> heats = new ArrayList<>();
 
     for (int heat = 1; heat <= numberOfHeats; heat++) {
-      heats.add(drawGridsForClassAndHeat(className, heat, excludedGrids));
+      List<List<String>> races = drawGridsForClassAndHeat(className, heat, excludedGrids);
+
+      if (!races.isEmpty()) {
+        heats.add(races);
+      }
     }
 
     return heats;

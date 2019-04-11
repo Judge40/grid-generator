@@ -2,6 +2,7 @@
 
 <?import javafx.scene.control.ComboBox?>
 <?import javafx.scene.control.Label?>
+<?import javafx.scene.control.TabPane?>
 <?import javafx.scene.layout.HBox?>
 <?import javafx.scene.layout.VBox?>
 
@@ -12,4 +13,5 @@
         <Label id="excludedGridsSelectorLabel" text="%draw.excludedGrids"/>
         <ComboBox fx:id="excludedGridsSelector"/>
     </HBox>
+    <TabPane fx:id="drawnGridsDisplay" side="LEFT"/>
 </VBox>

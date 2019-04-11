@@ -75,7 +75,7 @@ class GridDrawHelperTest {
    * Test that no races are returned when there are no participants for the class.
    */
   @Test
-  void testDrawGridsForClass_noClassParticipants_noRaces()
+  void testDrawGridsForClass_noClassParticipants_noHeats()
     throws BackingStoreException, IOException, ClassNotFoundException {
     // Set up the test scenario.
     PreferenceHelper.setClassParticipants("testClass", Collections.emptyList());
@@ -89,10 +89,6 @@ class GridDrawHelperTest {
 
     // Perform assertions.
     MatcherAssert.assertThat("The number of heats did not match the expected value.", heats.size(),
-      CoreMatchers.is(1));
-
-    List<List<String>> races = heats.get(0);
-    MatcherAssert.assertThat("The number of races did not match the expected value.", races.size(),
       CoreMatchers.is(0));
   }
 
@@ -100,7 +96,7 @@ class GridDrawHelperTest {
    * Test that no races are returned when all grids are excluded.
    */
   @Test
-  void testDrawGridsForClass_allGridsExcluded_noRaces()
+  void testDrawGridsForClass_allGridsExcluded_noHeats()
     throws BackingStoreException, IOException, ClassNotFoundException {
     // Set up the test scenario.
     PreferenceHelper.setClassParticipants("testClass",
@@ -116,10 +112,6 @@ class GridDrawHelperTest {
 
     // Perform assertions.
     MatcherAssert.assertThat("The number of heats did not match the expected value.", heats.size(),
-      CoreMatchers.is(1));
-
-    List<List<String>> races = heats.get(0);
-    MatcherAssert.assertThat("The number of races did not match the expected value.", races.size(),
       CoreMatchers.is(0));
   }
 

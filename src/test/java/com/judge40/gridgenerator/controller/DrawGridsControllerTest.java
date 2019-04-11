@@ -22,18 +22,28 @@ package com.judge40.gridgenerator.controller;
 import com.judge40.gridgenerator.PreferenceHelper;
 import com.judge40.gridgenerator.PreferenceTestHelper;
 import java.io.IOException;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
+import java.util.ListIterator;
 import java.util.Locale;
 import java.util.ResourceBundle;
 import java.util.prefs.BackingStoreException;
 import java.util.prefs.InvalidPreferencesFormatException;
+import java.util.stream.Collectors;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Scene;
 import javafx.scene.control.CheckBox;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.Labeled;
+import javafx.scene.control.Tab;
+import javafx.scene.control.TabPane;
+import javafx.scene.control.TableColumn;
+import javafx.scene.control.TableView;
 import javafx.scene.control.cell.CheckBoxListCell;
 import javafx.scene.layout.VBox;
+import javafx.scene.text.Text;
 import javafx.stage.Stage;
 import org.hamcrest.CoreMatchers;
 import org.hamcrest.MatcherAssert;
@@ -85,10 +95,16 @@ class DrawGridsControllerTest {
    */
   @Test
   void testInitialize_en_labelsEnglish(FxRobot robot)
-    throws IOException {
+    throws BackingStoreException, IOException {
     // Set up test scenario.
     Locale.setDefault(Locale.ENGLISH);
     ResourceBundle labelsBundle = ResourceBundle.getBundle("i18n.Labels");
+
+    PreferenceHelper.setParticipantClassNames(Collections.singletonList("class"));
+    PreferenceHelper.setClassParticipants("class", Collections.singletonList("participant"));
+
+    PreferenceHelper.setNumberOfGrids(1);
+    PreferenceHelper.setNumberOfHeats(2);
 
     // Call the code under test.
     VBox drawGridsLayout = FXMLLoader
@@ -105,6 +121,14 @@ class DrawGridsControllerTest {
     MatcherAssert.assertThat(
       "The excluded grid selector's label did not match the expected value.",
       selectorLabel.getText(), CoreMatchers.is("Excluded Grids"));
+
+    Text heatText = robot.lookup("#heatTableText1").queryText();
+    MatcherAssert.assertThat("The heat table's title text did not match the expected value.",
+      heatText.getText(), CoreMatchers.is("Heat 1"));
+
+    heatText = robot.lookup("#heatTableText2").queryText();
+    MatcherAssert.assertThat("The heat table's title text did not match the expected value.",
+      heatText.getText(), CoreMatchers.is("Heat 2"));
   }
 
   /**
@@ -113,10 +137,16 @@ class DrawGridsControllerTest {
    */
   @Test
   void testInitialize_enPseudo_labelsPseudoEnglish(FxRobot robot)
-    throws IOException {
+    throws BackingStoreException, IOException {
     // Set up test scenario.
     Locale.setDefault(new Locale("en", "PSEUDO"));
     ResourceBundle labelsBundle = ResourceBundle.getBundle("i18n.Labels");
+
+    PreferenceHelper.setParticipantClassNames(Collections.singletonList("class"));
+    PreferenceHelper.setClassParticipants("class", Collections.singletonList("participant"));
+
+    PreferenceHelper.setNumberOfGrids(1);
+    PreferenceHelper.setNumberOfHeats(2);
 
     // Call the code under test.
     VBox drawGridsLayout = FXMLLoader
@@ -133,6 +163,14 @@ class DrawGridsControllerTest {
     MatcherAssert.assertThat(
       "The excluded grid selector's label did not match the expected value.",
       selectorLabel.getText(), CoreMatchers.is("[!!! Éжçℓúδèδ Gřïδƨ ℓôř !!!]"));
+
+    Text heatText = robot.lookup("#heatTableText1").queryText();
+    MatcherAssert.assertThat("The heat table's title text did not match the expected value.",
+      heatText.getText(), CoreMatchers.is("[!!! Hèáƭ 1 ℓ !!!]"));
+
+    heatText = robot.lookup("#heatTableText2").queryText();
+    MatcherAssert.assertThat("The heat table's title text did not match the expected value.",
+      heatText.getText(), CoreMatchers.is("[!!! Hèáƭ 2 ℓ !!!]"));
   }
 
   /**
@@ -302,7 +340,7 @@ class DrawGridsControllerTest {
   }
 
   /**
-   * Test that the grid selector displays the selected grids when multiple grids are selected..
+   * Test that the grid selector displays the selected grids when multiple grids are selected.
    */
   @Test
   void testInitialize_gridsSelected_gridSelectorDisplaysGrids(FxRobot robot)
@@ -334,5 +372,152 @@ class DrawGridsControllerTest {
     MatcherAssert.assertThat(
       "The excluded grid selector's text did not match the expected value.",
       gridSelector.getButtonCell().getText(), CoreMatchers.is("1, 2, 3"));
+  }
+
+  /**
+   * Test that the class's tab is disabled when there are no participants for the class.
+   */
+  @Test
+  void testInitialize_classHasNoParticipants_classTabDisabled(FxRobot robot)
+    throws BackingStoreException, IOException {
+    // Set up test scenario.
+    Locale.setDefault(Locale.ENGLISH);
+    ResourceBundle labelsBundle = ResourceBundle.getBundle("i18n.Labels");
+
+    PreferenceHelper.setParticipantClassNames(Arrays.asList("class1", "class2"));
+    PreferenceHelper.setClassParticipants("class1", Collections.singletonList("participant"));
+
+    PreferenceHelper.setNumberOfGrids(4);
+    PreferenceHelper.setNumberOfHeats(2);
+
+    // Call the code under test.
+    VBox drawGridsLayout = FXMLLoader
+      .load(getClass().getResource("/fxml/draw-grids.fxml"), labelsBundle);
+    Scene scene = new Scene(drawGridsLayout);
+
+    robot.interact(() -> {
+      stage.setScene(scene);
+      stage.show();
+    });
+
+    // Perform assertions.
+    TabPane classTab = robot.lookup("#drawnGridsDisplay").query();
+    ObservableList<Tab> tabs = classTab.getTabs();
+    MatcherAssert
+      .assertThat("The number of class tabs did not match the expected value.", tabs.size(),
+        CoreMatchers.is(2));
+
+    Tab tab = tabs.get(0);
+    MatcherAssert.assertThat("The tab's text did not match the expected value.", tab.getText(),
+      CoreMatchers.is("class1"));
+    MatcherAssert
+      .assertThat("The tab's disabled state did not match the expected value.", tab.isDisabled(),
+        CoreMatchers.is(false));
+
+    tab = tabs.get(1);
+    MatcherAssert.assertThat("The tab's text did not match the expected value.", tab.getText(),
+      CoreMatchers.is("class2"));
+    MatcherAssert
+      .assertThat("The tab's disabled state did not match the expected value.", tab.isDisabled(),
+        CoreMatchers.is(true));
+  }
+
+  /**
+   * Test that the drawn grids are displayed when there are participants for the class.
+   */
+  @Test
+  void testInitialize_classHasParticipants_drawnGridsDisplayed(FxRobot robot)
+    throws BackingStoreException, IOException {
+    // Set up test scenario.
+    Locale.setDefault(Locale.ENGLISH);
+    ResourceBundle labelsBundle = ResourceBundle.getBundle("i18n.Labels");
+
+    PreferenceHelper.setParticipantClassNames(Collections.singletonList("class"));
+    PreferenceHelper.setClassParticipants("class", Arrays.asList("A1", "A2", "A3", "A4", "A5"));
+
+    PreferenceHelper.setNumberOfGrids(4);
+    PreferenceHelper.setNumberOfHeats(2);
+
+    // Call the code under test.
+    VBox drawGridsLayout = FXMLLoader
+      .load(getClass().getResource("/fxml/draw-grids.fxml"), labelsBundle);
+    Scene scene = new Scene(drawGridsLayout);
+
+    robot.interact(() -> {
+      stage.setScene(scene);
+      stage.show();
+    });
+
+    // Perform assertions.
+    TableView<List<String>> heatTable = robot.lookup("#heatTable1").query();
+    ObservableList<TableColumn<List<String>, ?>> columns = heatTable.getColumns();
+    MatcherAssert
+      .assertThat("The number of columns did not match the expected value.", columns.size(),
+        CoreMatchers.is(4));
+
+    for (ListIterator<TableColumn<List<String>, ?>> columnIterator = columns.listIterator();
+      columnIterator.hasNext(); ) {
+      TableColumn<List<String>, ?> column = columnIterator.next();
+      MatcherAssert
+        .assertThat("The column's header did not match the expected value.", column.getText(),
+          CoreMatchers.is(String.valueOf(columnIterator.nextIndex())));
+      MatcherAssert.assertThat("The column's editable flag did not match the expected value.",
+        column.isEditable(), CoreMatchers.is(false));
+      MatcherAssert.assertThat("The column's sortable flag did not match the expected value.",
+        column.isSortable(), CoreMatchers.is(false));
+    }
+
+    ObservableList<List<String>> items = heatTable.getItems();
+    List<String> race = items.get(0);
+    MatcherAssert
+      .assertThat("The number of participants did not match the expected value.", race.size(),
+        CoreMatchers.is(4));
+    List<String> realParticipants = race.stream()
+      .filter(p -> !p.isEmpty()).collect(Collectors.toList());
+    MatcherAssert.assertThat("The number of participants did not match the expected value.",
+      realParticipants.size(), CoreMatchers.is(3));
+
+    race = items.get(1);
+    MatcherAssert
+      .assertThat("The number of participants did not match the expected value.", race.size(),
+        CoreMatchers.is(4));
+    realParticipants = race.stream().filter(p -> !p.isEmpty()).collect(Collectors.toList());
+    MatcherAssert.assertThat("The number of participants did not match the expected value.",
+      realParticipants.size(), CoreMatchers.is(2));
+
+    heatTable = robot.lookup("#heatTable2").query();
+    columns = heatTable.getColumns();
+    MatcherAssert
+      .assertThat("The number of columns did not match the expected value.", columns.size(),
+        CoreMatchers.is(4));
+
+    for (ListIterator<TableColumn<List<String>, ?>> columnIterator = columns.listIterator();
+      columnIterator.hasNext(); ) {
+      TableColumn<List<String>, ?> column = columnIterator.next();
+      MatcherAssert
+        .assertThat("The column's header did not match the expected value.", column.getText(),
+          CoreMatchers.is(String.valueOf(columnIterator.nextIndex())));
+      MatcherAssert.assertThat("The column's editable flag did not match the expected value.",
+        column.isEditable(), CoreMatchers.is(false));
+      MatcherAssert.assertThat("The column's sortable flag did not match the expected value.",
+        column.isSortable(), CoreMatchers.is(false));
+    }
+
+    items = heatTable.getItems();
+    race = items.get(0);
+    MatcherAssert
+      .assertThat("The number of participants did not match the expected value.", race.size(),
+        CoreMatchers.is(4));
+    realParticipants = race.stream().filter(p -> !p.isEmpty()).collect(Collectors.toList());
+    MatcherAssert.assertThat("The number of participants did not match the expected value.",
+      realParticipants.size(), CoreMatchers.is(3));
+
+    race = items.get(1);
+    MatcherAssert
+      .assertThat("The number of participants did not match the expected value.", race.size(),
+        CoreMatchers.is(4));
+    realParticipants = race.stream().filter(p -> !p.isEmpty()).collect(Collectors.toList());
+    MatcherAssert.assertThat("The number of participants did not match the expected value.",
+      realParticipants.size(), CoreMatchers.is(2));
   }
 }

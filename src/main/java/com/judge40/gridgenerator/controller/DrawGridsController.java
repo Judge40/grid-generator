@@ -19,21 +19,38 @@
 
 package com.judge40.gridgenerator.controller;
 
+import com.judge40.gridgenerator.GridDrawHelper;
 import com.judge40.gridgenerator.PreferenceHelper;
+import java.io.IOException;
+import java.text.MessageFormat;
+import java.util.List;
+import java.util.ListIterator;
 import java.util.ResourceBundle;
 import java.util.Set;
 import java.util.TreeSet;
+import java.util.prefs.BackingStoreException;
 import javafx.beans.property.BooleanProperty;
+import javafx.beans.property.ReadOnlyStringWrapper;
 import javafx.beans.property.SimpleBooleanProperty;
 import javafx.beans.value.ObservableValue;
+import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
+import javafx.scene.Node;
+import javafx.scene.control.Alert;
+import javafx.scene.control.Alert.AlertType;
 import javafx.scene.control.CheckBox;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.ListCell;
 import javafx.scene.control.ListView;
+import javafx.scene.control.Tab;
+import javafx.scene.control.TabPane;
+import javafx.scene.control.TableColumn;
+import javafx.scene.control.TableView;
 import javafx.scene.control.cell.CheckBoxListCell;
 import javafx.scene.control.skin.ComboBoxListViewSkin;
+import javafx.scene.layout.VBox;
+import javafx.scene.text.Text;
 import javafx.util.Callback;
 
 /**
@@ -42,15 +59,20 @@ import javafx.util.Callback;
 public class DrawGridsController {
 
   private final ResourceBundle messageBundle = ResourceBundle.getBundle("i18n.Messages");
+  @FXML
+  private ResourceBundle resources;
 
   @FXML
   private ComboBox<Integer> excludedGridsSelector;
-
-  private Set<Integer> selectedGrids = new TreeSet<>();
+  private Set<Integer> excludedGrids = new TreeSet<>();
 
   @FXML
-  private void initialize() {
+  private TabPane drawnGridsDisplay;
+
+  @FXML
+  private void initialize() throws BackingStoreException, ClassNotFoundException, IOException {
     initializeExcludedGridsSelector();
+    initializeDrawnGridsDisplay();
   }
 
   /**
@@ -77,15 +99,15 @@ public class DrawGridsController {
     // When a grid's checkbox is changed update the selected grids and the summary text.
     Callback<Integer, ObservableValue<Boolean>> gridCellCallback = grid -> {
       BooleanProperty booleanObservable = new SimpleBooleanProperty();
-      booleanObservable.set(selectedGrids.contains(grid));
+      booleanObservable.set(excludedGrids.contains(grid));
       booleanObservable.addListener((observable, wasSelected, isNowSelected) -> {
         if (isNowSelected) {
-          selectedGrids.add(grid);
+          excludedGrids.add(grid);
         } else {
-          selectedGrids.remove(grid);
+          excludedGrids.remove(grid);
         }
 
-        String selectedGridsText = String.join(", ", selectedGrids.stream()
+        String selectedGridsText = String.join(", ", excludedGrids.stream()
           .map(String::valueOf).toArray(String[]::new));
         excludedGridsSelector.getButtonCell().setText(selectedGridsText);
       });
@@ -110,5 +132,88 @@ public class DrawGridsController {
     // Disable hide on click so multiple selections can be made.
     excludedGridsSelector.skinProperty().addListener(
       (observable, oldValue, newValue) -> ((ComboBoxListViewSkin) newValue).setHideOnClick(false));
+
+    excludedGridsSelector.addEventHandler(ComboBox.ON_HIDDEN, event -> {
+      try {
+        initializeDrawnGridsDisplay();
+      } catch (BackingStoreException | ClassNotFoundException | IOException e) {
+        Alert errorAlert = new Alert(AlertType.ERROR, e.getLocalizedMessage());
+        errorAlert.show();
+      }
+    });
+  }
+
+  /**
+   * Perform a grid draw and populate the drawn grids display with the results.
+   *
+   * @throws BackingStoreException If the participants could not be retrieved.
+   * @throws ClassNotFoundException If the participants could not be retrieved.
+   * @throws IOException If the participants could not be retrieved.
+   */
+  private void initializeDrawnGridsDisplay()
+    throws BackingStoreException, ClassNotFoundException, IOException {
+    // Reset the tabs.
+    ObservableList<Tab> drawnGridTabs = drawnGridsDisplay.getTabs();
+    drawnGridTabs.clear();
+
+    List<String> participantClassNames = PreferenceHelper.getParticipantClassNames();
+
+    for (String participantClassName : participantClassNames) {
+      List<List<List<String>>> heats = GridDrawHelper
+        .drawGridsForClass(participantClassName, excludedGrids);
+
+      Tab classTab = new Tab();
+      classTab.setText(participantClassName);
+      drawnGridTabs.add(classTab);
+
+      if (heats.isEmpty()) {
+        classTab.setDisable(true);
+      } else {
+        VBox tabContent = new VBox();
+        classTab.setContent(tabContent);
+        ObservableList<Node> tabChildren = tabContent.getChildren();
+
+        for (ListIterator<List<List<String>>> raceIterator = heats.listIterator();
+          raceIterator.hasNext(); ) {
+          List<List<String>> races = raceIterator.next();
+          int heatNumber = raceIterator.nextIndex();
+
+          String heatNumberText = resources.getString("draw.heatNumber");
+          heatNumberText = MessageFormat.format(heatNumberText, heatNumber);
+          Text heatTableText = new Text(heatNumberText);
+          heatTableText.setId("heatTableText" + heatNumber);
+          tabChildren.add(heatTableText);
+
+          TableView<List<String>> heatTable = createHeatTable(races);
+          heatTable.setId("heatTable" + heatNumber);
+          tabChildren.add(heatTable);
+        }
+      }
+    }
+  }
+
+  /**
+   * Create a display table for a particular heat from the given races.
+   *
+   * @param races A list of races containing lists of participants.
+   * @return A {@link TableView} which will display the heat's races.
+   */
+  private TableView<List<String>> createHeatTable(List<List<String>> races) {
+    ObservableList<List<String>> observableRaces = FXCollections.observableArrayList(races);
+    TableView<List<String>> heatTable = new TableView<>(observableRaces);
+
+    int numberOfGrids = PreferenceHelper.getNumberOfGrids();
+
+    for (int columnNumber = 1; columnNumber <= numberOfGrids; columnNumber++) {
+      TableColumn<List<String>, String> column = new TableColumn<>(String.valueOf(columnNumber));
+      int gridIndex = columnNumber - 1;
+      column
+        .setCellValueFactory(param -> new ReadOnlyStringWrapper(param.getValue().get(gridIndex)));
+      column.setEditable(false);
+      column.setSortable(false);
+      heatTable.getColumns().add(column);
+    }
+
+    return heatTable;
   }
 }
