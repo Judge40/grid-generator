@@ -411,6 +411,10 @@ class GridGeneratorTest {
     });
 
     // Perform assertions.
+    String meetingName = PreferenceHelper.getMeetingName();
+    MatcherAssert.assertThat("The meeting name did not match the expected value.", meetingName,
+      CoreMatchers.notNullValue());
+
     List<String> participantClassNames = PreferenceHelper.getParticipantClassNames();
     MatcherAssert.assertThat("The participant class names did not match the expected value.",
       participantClassNames, CoreMatchers.notNullValue());
@@ -443,6 +447,7 @@ class GridGeneratorTest {
   void testStart_hasPreferenceValues_preferencesNotInitialized(FxRobot robot)
     throws BackingStoreException, ClassNotFoundException, IOException {
     // Set up test scenario.
+    PreferenceHelper.setMeetingName("meetingName");
     PreferenceHelper.setParticipantClassNames(Arrays.asList("class1", "class2"));
     PreferenceHelper.setParticipantValidator("participantValidator");
     PreferenceHelper.setParticipantGroupingFilter("participantGroupingFilter");
@@ -460,6 +465,10 @@ class GridGeneratorTest {
     });
 
     // Perform assertions.
+    String meetingName = PreferenceHelper.getMeetingName();
+    MatcherAssert.assertThat("The meeting name did not match the expected value.", meetingName,
+      CoreMatchers.is("meetingName"));
+
     List<String> participantClassNames = PreferenceHelper.getParticipantClassNames();
     MatcherAssert.assertThat("The participant class names did not match the expected value.",
       participantClassNames, CoreMatchers.is(Arrays.asList("class1", "class2")));

@@ -66,6 +66,10 @@ class PreferenceHelperTest {
     PreferenceHelper.initializePreferences();
 
     // Perform assertions.
+    String meetingName = PreferenceHelper.getMeetingName();
+    MatcherAssert.assertThat("The meeting name did not match the expected value.", meetingName,
+      CoreMatchers.is("NWAA Qualifier"));
+
     List<String> participantClassNames = PreferenceHelper.getParticipantClassNames();
     MatcherAssert.assertThat("The participant class names did not match the expected value.",
       participantClassNames, CoreMatchers.is(Arrays.asList("Class 1", "Class 2", "Class 3",
@@ -99,6 +103,7 @@ class PreferenceHelperTest {
   void testInitializePreferences_hasPreferenceValues_preferencesNotInitialized()
     throws BackingStoreException, ClassNotFoundException, IOException {
     // Set up test scenario.
+    PreferenceHelper.setMeetingName("meetingName");
     PreferenceHelper.setParticipantClassNames(Arrays.asList("class1", "class2"));
     PreferenceHelper.setParticipantValidator("participantValidator");
     PreferenceHelper.setParticipantGroupingFilter("participantGroupingFilter");
@@ -110,6 +115,10 @@ class PreferenceHelperTest {
     PreferenceHelper.initializePreferences();
 
     // Perform assertions.
+    String meetingName = PreferenceHelper.getMeetingName();
+    MatcherAssert.assertThat("The meeting name did not match the expected value.", meetingName,
+      CoreMatchers.is("meetingName"));
+
     List<String> participantClassNames = PreferenceHelper.getParticipantClassNames();
     MatcherAssert.assertThat("The participant class names did not match the expected value.",
       participantClassNames, CoreMatchers.is(Arrays.asList("class1", "class2")));
@@ -133,6 +142,35 @@ class PreferenceHelperTest {
     int numberOfHeats = PreferenceHelper.getNumberOfHeats();
     MatcherAssert.assertThat("The number of heats did not match the expected value.", numberOfHeats,
       CoreMatchers.is(5));
+  }
+
+  /**
+   * Test that an empty string is returned when there is no preference value set.
+   */
+  @Test
+  void testGetMeetingName_noPreferenceValue_emptyString() {
+    // Call the code under test.
+    String meetingName = PreferenceHelper.getMeetingName();
+
+    // Perform assertions.
+    MatcherAssert.assertThat("The meeting name did not match the expected value.", meetingName,
+      CoreMatchers.is(""));
+  }
+
+  /**
+   * Test that the preference value is returned when there is a preference value set.
+   */
+  @Test
+  void testGetMeetingName_hasPreferenceValue_preferenceValue() {
+    // Set up test scenario.
+    PreferenceHelper.setMeetingName("meetingName");
+
+    // Call the code under test.
+    String meetingName = PreferenceHelper.getMeetingName();
+
+    // Perform assertions.
+    MatcherAssert.assertThat("The meeting name did not match the expected value.", meetingName,
+      CoreMatchers.is("meetingName"));
   }
 
   /**

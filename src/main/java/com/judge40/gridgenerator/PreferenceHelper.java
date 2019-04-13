@@ -41,6 +41,8 @@ public class PreferenceHelper {
     .userNodeForPackage(GridGenerator.class);
   private static final int BYTE_CHUNK_SIZE = (int) (Preferences.MAX_VALUE_LENGTH * 0.75);
 
+  private static final String MEETING_NAME = "meetingName";
+
   private static final String CLASS_PARTICIPANTS = "participants/%s";
   private static final String PARTICIPANT_CLASS_NAMES = "participantClassNames";
   private static final String PARTICIPANT_VALIDATOR = "participantValidator";
@@ -56,6 +58,10 @@ public class PreferenceHelper {
   // TODO: Use XML import to populate the preferences.
   public static void initializePreferences()
     throws BackingStoreException, ClassNotFoundException, IOException {
+    if (PREFERENCES.get(MEETING_NAME, null) == null) {
+      setMeetingName("NWAA Qualifier");
+    }
+
     if (getObject(PARTICIPANT_CLASS_NAMES, null) == null) {
       setParticipantClassNames(Arrays.asList("Class 1", "Class 2", "Class 3", "Class 4", "Class 5",
         "Class 6", "Class 7", "Class 8", "Class 9", "Class 10"));
@@ -80,6 +86,24 @@ public class PreferenceHelper {
     if (PREFERENCES.getInt(HEATS_TOTAL_NUMBER, -1) == -1) {
       setNumberOfHeats(3);
     }
+  }
+
+  /**
+   * Get the name of the meeting.
+   *
+   * @return The meeting name, defaults to an empty string if not set.
+   */
+  public static String getMeetingName() {
+    return PREFERENCES.get(MEETING_NAME, "");
+  }
+
+  /**
+   * Set the name of the meeting.
+   *
+   * @param meetingName The meeting name.
+   */
+  public static void setMeetingName(String meetingName) {
+    PREFERENCES.put(MEETING_NAME, meetingName);
   }
 
   /**
