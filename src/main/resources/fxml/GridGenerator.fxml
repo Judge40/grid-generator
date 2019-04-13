@@ -6,7 +6,8 @@
 <?import javafx.scene.layout.BorderPane?>
 
 <BorderPane xmlns:fx="http://javafx.com/fxml/1" xmlns="http://javafx.com/javafx/10.0.1"
-    fx:controller="com.judge40.gridgenerator.controller.GridGeneratorController" fx:id="mainLayout">
+    fx:controller="com.judge40.gridgenerator.controller.GridGeneratorController" fx:id="mainLayout"
+    prefHeight="732" prefWidth="510">
     <top>
         <MenuBar>
             <Menu id="fileMenu" text="%menu.file">
