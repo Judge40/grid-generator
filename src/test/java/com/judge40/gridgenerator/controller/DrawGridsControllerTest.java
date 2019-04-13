@@ -22,6 +22,8 @@ package com.judge40.gridgenerator.controller;
 import com.judge40.gridgenerator.PreferenceHelper;
 import com.judge40.gridgenerator.PreferenceTestHelper;
 import java.io.IOException;
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
@@ -100,6 +102,8 @@ class DrawGridsControllerTest {
     Locale.setDefault(Locale.ENGLISH);
     ResourceBundle labelsBundle = ResourceBundle.getBundle("i18n.Labels");
 
+    PreferenceHelper.setMeetingName("meetingName");
+
     PreferenceHelper.setParticipantClassNames(Collections.singletonList("class"));
     PreferenceHelper.setClassParticipants("class", Collections.singletonList("participant"));
 
@@ -127,6 +131,16 @@ class DrawGridsControllerTest {
       "The excluded grid selector's label did not match the expected value.",
       printCurrentButton.getText(), CoreMatchers.is("Print Current"));
 
+    Text meetingInformation = robot.lookup("#meetingInformation").queryText();
+    String expectedMeetingInformation =
+      "meetingName - " + LocalDate.now().format(DateTimeFormatter.ofPattern("dd/MM/yyyy"));
+    MatcherAssert.assertThat("The meeting information's text did not match the expected value.",
+      meetingInformation.getText(), CoreMatchers.is(expectedMeetingInformation));
+
+    Text classInformation = robot.lookup("#classInformation").queryText();
+    MatcherAssert.assertThat("The class information text did not match the expected value.",
+      classInformation.getText(), CoreMatchers.is("class"));
+
     Text heatText = robot.lookup("#heatTableText1").queryText();
     MatcherAssert.assertThat("The heat table's title text did not match the expected value.",
       heatText.getText(), CoreMatchers.is("Heat 1"));
@@ -146,6 +160,8 @@ class DrawGridsControllerTest {
     // Set up test scenario.
     Locale.setDefault(new Locale("en", "PSEUDO"));
     ResourceBundle labelsBundle = ResourceBundle.getBundle("i18n.Labels");
+
+    PreferenceHelper.setMeetingName("meetingName");
 
     PreferenceHelper.setParticipantClassNames(Collections.singletonList("class"));
     PreferenceHelper.setClassParticipants("class", Collections.singletonList("participant"));
@@ -173,6 +189,16 @@ class DrawGridsControllerTest {
     MatcherAssert.assertThat(
       "The excluded grid selector's label did not match the expected value.",
       printCurrentButton.getText(), CoreMatchers.is("[!!! Þřïñƭ Çúřřèñƭ ℓôř !!!]"));
+
+    Text meetingInformation = robot.lookup("#meetingInformation").queryText();
+    String expectedMeetingInformation =
+      "meetingName - " + LocalDate.now().format(DateTimeFormatter.ofPattern("dd/MM/yyyy"));
+    MatcherAssert.assertThat("The meeting information's text did not match the expected value.",
+      meetingInformation.getText(), CoreMatchers.is(expectedMeetingInformation));
+
+    Text classInformation = robot.lookup("#classInformation").queryText();
+    MatcherAssert.assertThat("The class information text did not match the expected value.",
+      classInformation.getText(), CoreMatchers.is("class"));
 
     Text heatText = robot.lookup("#heatTableText1").queryText();
     MatcherAssert.assertThat("The heat table's title text did not match the expected value.",
@@ -433,10 +459,11 @@ class DrawGridsControllerTest {
   }
 
   /**
-   * Test that the drawn grids are displayed when there are participants for the class.
+   * Test that the drawn grids are displayed with English headers when there are participants for
+   * the class and the locale is set to English.
    */
   @Test
-  void testInitialize_classHasParticipants_drawnGridsDisplayed(FxRobot robot)
+  void testInitialize_classHasParticipantsEn_drawnGridsDisplayedHeadersEnglish(FxRobot robot)
     throws BackingStoreException, IOException {
     // Set up test scenario.
     Locale.setDefault(Locale.ENGLISH);
@@ -463,31 +490,40 @@ class DrawGridsControllerTest {
     ObservableList<TableColumn<List<String>, ?>> columns = heatTable.getColumns();
     MatcherAssert
       .assertThat("The number of columns did not match the expected value.", columns.size(),
-        CoreMatchers.is(4));
+        CoreMatchers.is(5));
 
     for (ListIterator<TableColumn<List<String>, ?>> columnIterator = columns.listIterator();
       columnIterator.hasNext(); ) {
+      int columnIndex = columnIterator.nextIndex();
       TableColumn<List<String>, ?> column = columnIterator.next();
       MatcherAssert
         .assertThat("The column's header did not match the expected value.", column.getText(),
-          CoreMatchers.is(String.valueOf(columnIterator.nextIndex())));
+          CoreMatchers.is(columnIndex == 0 ? "Race" : String.valueOf(columnIndex)));
       MatcherAssert.assertThat("The column's editable flag did not match the expected value.",
         column.isEditable(), CoreMatchers.is(false));
+      MatcherAssert.assertThat("The column's reorderable flag did not match the expected value.",
+        column.isReorderable(), CoreMatchers.is(false));
       MatcherAssert.assertThat("The column's sortable flag did not match the expected value.",
         column.isSortable(), CoreMatchers.is(false));
+      MatcherAssert.assertThat("The column's resizable flag did not match the expected value.",
+        column.isResizable(), CoreMatchers.is(true));
     }
 
     ObservableList<List<String>> items = heatTable.getItems();
     List<String> race = items.get(0);
+    MatcherAssert.assertThat("The race number did not match the expected value.", race.remove(0),
+      CoreMatchers.is("1"));
     MatcherAssert
       .assertThat("The number of participants did not match the expected value.", race.size(),
         CoreMatchers.is(4));
     List<String> realParticipants = race.stream()
-      .filter(p -> !p.isEmpty()).collect(Collectors.toList());
+      .filter(p -> !p.isEmpty() && !p.equals("Race")).collect(Collectors.toList());
     MatcherAssert.assertThat("The number of participants did not match the expected value.",
       realParticipants.size(), CoreMatchers.is(3));
 
     race = items.get(1);
+    MatcherAssert.assertThat("The race number did not match the expected value.", race.remove(0),
+      CoreMatchers.is("2"));
     MatcherAssert
       .assertThat("The number of participants did not match the expected value.", race.size(),
         CoreMatchers.is(4));
@@ -499,22 +535,29 @@ class DrawGridsControllerTest {
     columns = heatTable.getColumns();
     MatcherAssert
       .assertThat("The number of columns did not match the expected value.", columns.size(),
-        CoreMatchers.is(4));
+        CoreMatchers.is(5));
 
     for (ListIterator<TableColumn<List<String>, ?>> columnIterator = columns.listIterator();
       columnIterator.hasNext(); ) {
+      int columnIndex = columnIterator.nextIndex();
       TableColumn<List<String>, ?> column = columnIterator.next();
       MatcherAssert
         .assertThat("The column's header did not match the expected value.", column.getText(),
-          CoreMatchers.is(String.valueOf(columnIterator.nextIndex())));
+          CoreMatchers.is(columnIndex == 0 ? "Race" : String.valueOf(columnIndex)));
       MatcherAssert.assertThat("The column's editable flag did not match the expected value.",
         column.isEditable(), CoreMatchers.is(false));
+      MatcherAssert.assertThat("The column's reorderable flag did not match the expected value.",
+        column.isReorderable(), CoreMatchers.is(false));
       MatcherAssert.assertThat("The column's sortable flag did not match the expected value.",
         column.isSortable(), CoreMatchers.is(false));
+      MatcherAssert.assertThat("The column's resizable flag did not match the expected value.",
+        column.isResizable(), CoreMatchers.is(true));
     }
 
     items = heatTable.getItems();
     race = items.get(0);
+    MatcherAssert.assertThat("The race number did not match the expected value.", race.remove(0),
+      CoreMatchers.is("1"));
     MatcherAssert
       .assertThat("The number of participants did not match the expected value.", race.size(),
         CoreMatchers.is(4));
@@ -523,6 +566,127 @@ class DrawGridsControllerTest {
       realParticipants.size(), CoreMatchers.is(3));
 
     race = items.get(1);
+    MatcherAssert.assertThat("The race number did not match the expected value.", race.remove(0),
+      CoreMatchers.is("2"));
+    MatcherAssert
+      .assertThat("The number of participants did not match the expected value.", race.size(),
+        CoreMatchers.is(4));
+    realParticipants = race.stream().filter(p -> !p.isEmpty()).collect(Collectors.toList());
+    MatcherAssert.assertThat("The number of participants did not match the expected value.",
+      realParticipants.size(), CoreMatchers.is(2));
+  }
+
+  /**
+   * Test that the drawn grids are displayed with Pseudo English headers when there are participants
+   * for the class and the locale is set to Pseudo English.
+   */
+  @Test
+  void testInitialize_classHasParticipantsEnPseudo_drawnGridsDisplayedHeadersPseudoEnglish(
+    FxRobot robot)
+    throws BackingStoreException, IOException {
+    // Set up test scenario.
+    Locale.setDefault(new Locale("en", "PSEUDO"));
+    ResourceBundle labelsBundle = ResourceBundle.getBundle("i18n.Labels");
+
+    PreferenceHelper.setParticipantClassNames(Collections.singletonList("class"));
+    PreferenceHelper.setClassParticipants("class", Arrays.asList("A1", "A2", "A3", "A4", "A5"));
+
+    PreferenceHelper.setNumberOfGrids(4);
+    PreferenceHelper.setNumberOfHeats(2);
+
+    // Call the code under test.
+    VBox drawGridsLayout = FXMLLoader
+      .load(getClass().getResource("/fxml/draw-grids.fxml"), labelsBundle);
+    Scene scene = new Scene(drawGridsLayout);
+
+    robot.interact(() -> {
+      stage.setScene(scene);
+      stage.show();
+    });
+
+    // Perform assertions.
+    TableView<List<String>> heatTable = robot.lookup("#heatTable1").query();
+    ObservableList<TableColumn<List<String>, ?>> columns = heatTable.getColumns();
+    MatcherAssert
+      .assertThat("The number of columns did not match the expected value.", columns.size(),
+        CoreMatchers.is(5));
+
+    for (ListIterator<TableColumn<List<String>, ?>> columnIterator = columns.listIterator();
+      columnIterator.hasNext(); ) {
+      int columnIndex = columnIterator.nextIndex();
+      TableColumn<List<String>, ?> column = columnIterator.next();
+      MatcherAssert
+        .assertThat("The column's header did not match the expected value.", column.getText(),
+          CoreMatchers.is(columnIndex == 0 ? "[!!! Ráçè  !!!]" : String.valueOf(columnIndex)));
+      MatcherAssert.assertThat("The column's editable flag did not match the expected value.",
+        column.isEditable(), CoreMatchers.is(false));
+      MatcherAssert.assertThat("The column's reorderable flag did not match the expected value.",
+        column.isReorderable(), CoreMatchers.is(false));
+      MatcherAssert.assertThat("The column's sortable flag did not match the expected value.",
+        column.isSortable(), CoreMatchers.is(false));
+      MatcherAssert.assertThat("The column's resizable flag did not match the expected value.",
+        column.isResizable(), CoreMatchers.is(true));
+    }
+
+    ObservableList<List<String>> items = heatTable.getItems();
+    List<String> race = items.get(0);
+    MatcherAssert.assertThat("The race number did not match the expected value.", race.remove(0),
+      CoreMatchers.is("1"));
+    MatcherAssert
+      .assertThat("The number of participants did not match the expected value.", race.size(),
+        CoreMatchers.is(4));
+    List<String> realParticipants = race.stream()
+      .filter(p -> !p.isEmpty()).collect(Collectors.toList());
+    MatcherAssert.assertThat("The number of participants did not match the expected value.",
+      realParticipants.size(), CoreMatchers.is(3));
+
+    race = items.get(1);
+    MatcherAssert.assertThat("The race number did not match the expected value.", race.remove(0),
+      CoreMatchers.is("2"));
+    MatcherAssert
+      .assertThat("The number of participants did not match the expected value.", race.size(),
+        CoreMatchers.is(4));
+    realParticipants = race.stream().filter(p -> !p.isEmpty()).collect(Collectors.toList());
+    MatcherAssert.assertThat("The number of participants did not match the expected value.",
+      realParticipants.size(), CoreMatchers.is(2));
+
+    heatTable = robot.lookup("#heatTable2").query();
+    columns = heatTable.getColumns();
+    MatcherAssert
+      .assertThat("The number of columns did not match the expected value.", columns.size(),
+        CoreMatchers.is(5));
+
+    for (ListIterator<TableColumn<List<String>, ?>> columnIterator = columns.listIterator();
+      columnIterator.hasNext(); ) {
+      int columnIndex = columnIterator.nextIndex();
+      TableColumn<List<String>, ?> column = columnIterator.next();
+      MatcherAssert
+        .assertThat("The column's header did not match the expected value.", column.getText(),
+          CoreMatchers.is(columnIndex == 0 ? "[!!! Ráçè  !!!]" : String.valueOf(columnIndex)));
+      MatcherAssert.assertThat("The column's editable flag did not match the expected value.",
+        column.isEditable(), CoreMatchers.is(false));
+      MatcherAssert.assertThat("The column's reorderable flag did not match the expected value.",
+        column.isReorderable(), CoreMatchers.is(false));
+      MatcherAssert.assertThat("The column's sortable flag did not match the expected value.",
+        column.isSortable(), CoreMatchers.is(false));
+      MatcherAssert.assertThat("The column's resizable flag did not match the expected value.",
+        column.isResizable(), CoreMatchers.is(true));
+    }
+
+    items = heatTable.getItems();
+    race = items.get(0);
+    MatcherAssert.assertThat("The race number did not match the expected value.", race.remove(0),
+      CoreMatchers.is("1"));
+    MatcherAssert
+      .assertThat("The number of participants did not match the expected value.", race.size(),
+        CoreMatchers.is(4));
+    realParticipants = race.stream().filter(p -> !p.isEmpty()).collect(Collectors.toList());
+    MatcherAssert.assertThat("The number of participants did not match the expected value.",
+      realParticipants.size(), CoreMatchers.is(3));
+
+    race = items.get(1);
+    MatcherAssert.assertThat("The race number did not match the expected value.", race.remove(0),
+      CoreMatchers.is("2"));
     MatcherAssert
       .assertThat("The number of participants did not match the expected value.", race.size(),
         CoreMatchers.is(4));

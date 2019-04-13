@@ -24,6 +24,7 @@ import com.judge40.gridgenerator.PreferenceHelper;
 import java.io.IOException;
 import java.text.MessageFormat;
 import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.ListIterator;
 import java.util.ResourceBundle;
@@ -60,6 +61,10 @@ import javafx.util.Callback;
  * An FXML controller controller for grid drawing.
  */
 public class DrawGridsController {
+
+  private static final double HEAT_TABLE_HEIGHT = 200;
+  private static final double HEAT_TABLE_WIDTH = 480;
+  private static final double RACE_COLUMN_WIDTH = 40;
 
   private final ResourceBundle messageBundle = ResourceBundle.getBundle("i18n.Messages");
   @FXML
@@ -172,13 +177,20 @@ public class DrawGridsController {
       if (heats.isEmpty()) {
         classTab.setDisable(true);
       } else {
+        // TODO: move VBox and standard children to FXML.
         VBox tabContent = new VBox();
         classTab.setContent(tabContent);
         ObservableList<Node> tabChildren = tabContent.getChildren();
 
         // Add meeting and class headings.
-        tabChildren.add(new Text("NWAA Qualifier - " + LocalDate.now().toString())); // TODO: use preference or other input
-        tabChildren.add(new Text(participantClassName));
+        String meetingName = PreferenceHelper.getMeetingName();
+        String date = LocalDate.now().format(DateTimeFormatter.ofPattern("dd/MM/yyyy"));
+        Text meetingInformation = new Text(String.format("%s - %s", meetingName, date));
+        meetingInformation.setId("meetingInformation");
+        tabChildren.add(meetingInformation);
+        Text classInformation = new Text(participantClassName);
+        classInformation.setId("classInformation");
+        tabChildren.add(classInformation);
 
         // Add heat headings and tables.
         for (ListIterator<List<List<String>>> raceIterator = heats.listIterator();
@@ -186,6 +198,7 @@ public class DrawGridsController {
           List<List<String>> races = raceIterator.next();
           int heatNumber = raceIterator.nextIndex();
 
+          // TODO: move heat label and base table view to FXML.
           String heatNumberText = resources.getString("draw.heatNumber");
           heatNumberText = MessageFormat.format(heatNumberText, heatNumber);
           Text heatTableText = new Text(heatNumberText);
@@ -208,26 +221,48 @@ public class DrawGridsController {
    */
   private TableView<List<String>> createHeatTable(List<List<String>> races) {
     ObservableList<List<String>> observableRaces = FXCollections.observableArrayList(races);
-    TableView<List<String>> heatTable = new TableView<>(observableRaces);
 
-    int numberOfGrids = PreferenceHelper.getNumberOfGrids();
-
-    for (int columnNumber = 1; columnNumber <= numberOfGrids; columnNumber++) {
-      TableColumn<List<String>, String> column = new TableColumn<>(String.valueOf(columnNumber));
-      int gridIndex = columnNumber - 1;
-      column
-        .setCellValueFactory(param -> new ReadOnlyStringWrapper(param.getValue().get(gridIndex)));
-      column.setEditable(false);
-      column.setSortable(false);
-      heatTable.getColumns().add(column);
+    // Add the race numbers to each row.
+    for (ListIterator<List<String>> raceIterator = observableRaces.listIterator();
+      raceIterator.hasNext(); ) {
+      List<String> race = raceIterator.next();
+      String raceNumber = String.valueOf(raceIterator.nextIndex());
+      race.add(0, raceNumber);
     }
 
-    // Customize how the table is displayed.
+    // Create the table and customize how it is displayed.
+    TableView<List<String>> heatTable = new TableView<>(observableRaces);
     heatTable.setSelectionModel(null);
     heatTable.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY);
-    heatTable.setPrefSize(400, 200);
+    heatTable.setPrefSize(HEAT_TABLE_WIDTH, HEAT_TABLE_HEIGHT);
     heatTable.setMinSize(Control.USE_PREF_SIZE, Control.USE_PREF_SIZE);
     heatTable.setMaxSize(Control.USE_PREF_SIZE, Control.USE_PREF_SIZE);
+
+    ObservableList<TableColumn<List<String>, ?>> columns = heatTable.getColumns();
+    int numberOfGrids = PreferenceHelper.getNumberOfGrids();
+
+    // Add a column for each grid.
+    for (int gridNumber = 0; gridNumber <= numberOfGrids; gridNumber++) {
+      // If the grid is zero then it is the race number column so do not add a header.
+      String columnHeader =
+        gridNumber == 0 ? resources.getString("draw.raceHeader") : String.valueOf(gridNumber);
+      TableColumn<List<String>, String> column = new TableColumn<>(columnHeader);
+      int gridIndex = gridNumber;
+      column
+        .setCellValueFactory(param -> new ReadOnlyStringWrapper(param.getValue().get(gridIndex)));
+
+      // Disable the ability to change the properties of the column.
+      column.setEditable(false);
+      column.setReorderable(false);
+      column.setSortable(false);
+
+      if (gridNumber == 0) {
+        column.setMinWidth(RACE_COLUMN_WIDTH);
+        column.setMaxWidth(RACE_COLUMN_WIDTH);
+      }
+
+      columns.add(column);
+    }
 
     return heatTable;
   }
