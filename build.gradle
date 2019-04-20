@@ -2,6 +2,7 @@ plugins {
     id "application"
     id "com.google.osdetector" version "1.6.2"
     id "jacoco"
+    id "org.beryx.jlink" version "2.10.1"
 }
 
 mainClassName = "com.judge40.gridgenerator.GridGeneratorLauncher"
@@ -19,7 +20,7 @@ compileJava {
     doFirst {
         options.compilerArgs = [
                 "--module-path", classpath.asPath,
-                "--add-modules", "javafx.controls"
+                "--add-modules", "javafx.controls,javafx.fxml"
         ]
     }
 }
@@ -62,6 +63,13 @@ jacocoTestReport {
     }
 }
 
+jlink {
+    options = ['--strip-debug', '--compress', '2', '--no-header-files', '--no-man-pages']
+    launcher {
+        name = 'Grid Generator'
+    }
+}
+
 repositories {
     jcenter()
 }
@@ -70,7 +78,7 @@ run {
     doFirst {
         jvmArgs = [
                 "--module-path", classpath.asPath,
-                "--add-modules", "javafx.controls"
+                "--add-modules", "javafx.controls,javafx.fxml"
         ]
     }
 }
