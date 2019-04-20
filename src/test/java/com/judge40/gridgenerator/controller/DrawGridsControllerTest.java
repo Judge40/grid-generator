@@ -498,7 +498,7 @@ class DrawGridsControllerTest {
       TableColumn<List<String>, ?> column = columnIterator.next();
       MatcherAssert
         .assertThat("The column's header did not match the expected value.", column.getText(),
-          CoreMatchers.is(columnIndex == 0 ? "Race" : String.valueOf(columnIndex)));
+          CoreMatchers.is(columnIndex == 0 ? "Grid:" : String.valueOf(columnIndex)));
       MatcherAssert.assertThat("The column's editable flag did not match the expected value.",
         column.isEditable(), CoreMatchers.is(false));
       MatcherAssert.assertThat("The column's reorderable flag did not match the expected value.",
@@ -512,7 +512,7 @@ class DrawGridsControllerTest {
     ObservableList<List<String>> items = heatTable.getItems();
     List<String> race = items.get(0);
     MatcherAssert.assertThat("The race number did not match the expected value.", race.remove(0),
-      CoreMatchers.is("1"));
+      CoreMatchers.is("Race 1"));
     MatcherAssert
       .assertThat("The number of participants did not match the expected value.", race.size(),
         CoreMatchers.is(4));
@@ -523,7 +523,7 @@ class DrawGridsControllerTest {
 
     race = items.get(1);
     MatcherAssert.assertThat("The race number did not match the expected value.", race.remove(0),
-      CoreMatchers.is("2"));
+      CoreMatchers.is("Race 2"));
     MatcherAssert
       .assertThat("The number of participants did not match the expected value.", race.size(),
         CoreMatchers.is(4));
@@ -543,7 +543,7 @@ class DrawGridsControllerTest {
       TableColumn<List<String>, ?> column = columnIterator.next();
       MatcherAssert
         .assertThat("The column's header did not match the expected value.", column.getText(),
-          CoreMatchers.is(columnIndex == 0 ? "Race" : String.valueOf(columnIndex)));
+          CoreMatchers.is(columnIndex == 0 ? "Grid:" : String.valueOf(columnIndex)));
       MatcherAssert.assertThat("The column's editable flag did not match the expected value.",
         column.isEditable(), CoreMatchers.is(false));
       MatcherAssert.assertThat("The column's reorderable flag did not match the expected value.",
@@ -557,7 +557,7 @@ class DrawGridsControllerTest {
     items = heatTable.getItems();
     race = items.get(0);
     MatcherAssert.assertThat("The race number did not match the expected value.", race.remove(0),
-      CoreMatchers.is("1"));
+      CoreMatchers.is("Race 1"));
     MatcherAssert
       .assertThat("The number of participants did not match the expected value.", race.size(),
         CoreMatchers.is(4));
@@ -567,7 +567,7 @@ class DrawGridsControllerTest {
 
     race = items.get(1);
     MatcherAssert.assertThat("The race number did not match the expected value.", race.remove(0),
-      CoreMatchers.is("2"));
+      CoreMatchers.is("Race 2"));
     MatcherAssert
       .assertThat("The number of participants did not match the expected value.", race.size(),
         CoreMatchers.is(4));
@@ -617,7 +617,7 @@ class DrawGridsControllerTest {
       TableColumn<List<String>, ?> column = columnIterator.next();
       MatcherAssert
         .assertThat("The column's header did not match the expected value.", column.getText(),
-          CoreMatchers.is(columnIndex == 0 ? "[!!! Ráçè  !!!]" : String.valueOf(columnIndex)));
+          CoreMatchers.is(columnIndex == 0 ? "[!!! Gřïδ: ℓ !!!]" : String.valueOf(columnIndex)));
       MatcherAssert.assertThat("The column's editable flag did not match the expected value.",
         column.isEditable(), CoreMatchers.is(false));
       MatcherAssert.assertThat("The column's reorderable flag did not match the expected value.",
@@ -631,7 +631,7 @@ class DrawGridsControllerTest {
     ObservableList<List<String>> items = heatTable.getItems();
     List<String> race = items.get(0);
     MatcherAssert.assertThat("The race number did not match the expected value.", race.remove(0),
-      CoreMatchers.is("1"));
+      CoreMatchers.is("[!!! Ráçè 1 ℓ !!!]"));
     MatcherAssert
       .assertThat("The number of participants did not match the expected value.", race.size(),
         CoreMatchers.is(4));
@@ -642,7 +642,7 @@ class DrawGridsControllerTest {
 
     race = items.get(1);
     MatcherAssert.assertThat("The race number did not match the expected value.", race.remove(0),
-      CoreMatchers.is("2"));
+      CoreMatchers.is("[!!! Ráçè 2 ℓ !!!]"));
     MatcherAssert
       .assertThat("The number of participants did not match the expected value.", race.size(),
         CoreMatchers.is(4));
@@ -662,7 +662,7 @@ class DrawGridsControllerTest {
       TableColumn<List<String>, ?> column = columnIterator.next();
       MatcherAssert
         .assertThat("The column's header did not match the expected value.", column.getText(),
-          CoreMatchers.is(columnIndex == 0 ? "[!!! Ráçè  !!!]" : String.valueOf(columnIndex)));
+          CoreMatchers.is(columnIndex == 0 ? "[!!! Gřïδ: ℓ !!!]" : String.valueOf(columnIndex)));
       MatcherAssert.assertThat("The column's editable flag did not match the expected value.",
         column.isEditable(), CoreMatchers.is(false));
       MatcherAssert.assertThat("The column's reorderable flag did not match the expected value.",
@@ -676,7 +676,7 @@ class DrawGridsControllerTest {
     items = heatTable.getItems();
     race = items.get(0);
     MatcherAssert.assertThat("The race number did not match the expected value.", race.remove(0),
-      CoreMatchers.is("1"));
+      CoreMatchers.is("[!!! Ráçè 1 ℓ !!!]"));
     MatcherAssert
       .assertThat("The number of participants did not match the expected value.", race.size(),
         CoreMatchers.is(4));
@@ -686,7 +686,7 @@ class DrawGridsControllerTest {
 
     race = items.get(1);
     MatcherAssert.assertThat("The race number did not match the expected value.", race.remove(0),
-      CoreMatchers.is("2"));
+      CoreMatchers.is("[!!! Ráçè 2 ℓ !!!]"));
     MatcherAssert
       .assertThat("The number of participants did not match the expected value.", race.size(),
         CoreMatchers.is(4));

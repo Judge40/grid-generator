@@ -226,7 +226,8 @@ public class DrawGridsController {
     for (ListIterator<List<String>> raceIterator = observableRaces.listIterator();
       raceIterator.hasNext(); ) {
       List<String> race = raceIterator.next();
-      String raceNumber = String.valueOf(raceIterator.nextIndex());
+      String raceHeader = resources.getString("draw.raceHeader");
+      String raceNumber = MessageFormat.format(raceHeader, raceIterator.nextIndex());
       race.add(0, raceNumber);
     }
 
@@ -245,7 +246,7 @@ public class DrawGridsController {
     for (int gridNumber = 0; gridNumber <= numberOfGrids; gridNumber++) {
       // If the grid is zero then it is the race number column so do not add a header.
       String columnHeader =
-        gridNumber == 0 ? resources.getString("draw.raceHeader") : String.valueOf(gridNumber);
+        gridNumber == 0 ? resources.getString("draw.gridHeader") : String.valueOf(gridNumber);
       TableColumn<List<String>, String> column = new TableColumn<>(columnHeader);
       int gridIndex = gridNumber;
       column
@@ -259,6 +260,7 @@ public class DrawGridsController {
       if (gridNumber == 0) {
         column.setMinWidth(RACE_COLUMN_WIDTH);
         column.setMaxWidth(RACE_COLUMN_WIDTH);
+        column.getStyleClass().add("row-header");
       }
 
       columns.add(column);

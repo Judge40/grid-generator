@@ -1,0 +1,39 @@
+#meetingInformation {
+    -fx-font-size: 25px;
+}
+
+#classInformation {
+    -fx-font-size: 20px;
+}
+
+#heatTableText1, #heatTableText2, #heatTableText3 {
+    -fx-font-size: 15px;
+}
+
+.table-view {
+    -fx-background-color: transparent;
+    -fx-border-color: transparent;
+    -fx-table-cell-border-color: transparent;
+}
+
+.table-row-cell:empty {
+    -fx-background-color: transparent;
+}
+
+.table-row-cell:filled {
+    -fx-table-cell-border-color: #424242;
+}
+
+.column-header {
+    -fx-border-color: #424242;
+    -fx-background-color: #ffffff;
+}
+
+.row-header.cell:filled {
+    -fx-border-color: #424242;
+    -fx-background-color: #ffffff;
+
+    -fx-font-size: 0.8em;
+    -fx-font-weight: bold;
+    -fx-alignment: center;
+}
