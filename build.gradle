@@ -14,10 +14,6 @@ ext.platform = osdetector.os == "osx" ? "mac"
         : osdetector.os == "windows" ? "win"
         : osdetector.os
 
-check {
-    dependsOn jacocoTestReport
-}
-
 compileJava {
     doFirst {
         options.compilerArgs = [
@@ -86,12 +82,13 @@ run {
 }
 
 sonarqube {
-  properties {
-    property "sonar.projectKey", "Judge40_grid-generator"
-  }
+    properties {
+        property "sonar.projectKey", "Judge40_grid-generator"
+    }
 }
 
 test {
+    finalizedBy jacocoTestReport
     jvmArgs = [
             "-javaagent:${classpath.find {it.name.contains("jmockit")}.absolutePath}",
             "-Dtestfx.headless=true"
