@@ -87,7 +87,7 @@ run {
 
 sonarqube {
   properties {
-    property "sonar.projectkey", "judge40_grid-generator"
+    property "sonar.projectKey", "Judge40_grid-generator"
   }
 }
 
