@@ -4,6 +4,15 @@ jdk: openjdk11
 
 os: linux
 
+addons:
+  sonarcloud:
+    organization: "judge40"
+    token:
+      secure: "c2dAUW8oLC2aR+MV0dp26m42fG4akaOh5lq/gFD0U97V9QUaCQme2O+zMruso/AgpHhll2/v9H/rKjOA8IW4G10PsV5iLDbBxt1X2jtRI7f5PzE2bY1NEAU2A7itmYcqpZC995LIHW37nlMFpFQ5Z16VsgUjp3q82y4yq4oVE1JgUFH09O7F3+RecNaONUignPjXJBdOlEMY3+sF+2giyeZJpvLccPUBS3LnF9L4fTgS4Ud0sZm2QU36EvVU+Pb7JYWj6WJ6t0OCRUjq9g397MUm9Pr0DsD1FhfDPtZmK13aBBCUIW6KUx+na9C/55v0kk7R9syf7PpOROk65/rO6BsfDUaxPf0jLTWlY45ltVzvFbSXrRs6ilgbTLy8DkTBdMCvbQagK1PJnA7+aGcaajBjUiPpvCDMxhcepyW5ZEdcwzgI6VP/eojbRcQWkoITcSy0hSluHNXOh/HbV6OZYCyA8TsymikD5L+jJq8Obw8IJubeAudjO8n4WPF1omVp9dOM4b/He92TOaB2cobZ17jH8YFwRAHo57bvpjrgGHMT4xjMkucZpMyaYSc+h0C10xIOiZpX0J34kG3hikW4CJKN+fFQMwMlF/Q8nHyx3Tn82GyA+a+3QXq7rK1h74WCB8N+TtBncwjWfsvPnjJcZTnLDCHWl0tXAwABQ4wqKRI="
+
+script:
+ - ./gradlew sonarqube
+
 services:
   - xvfb
 
