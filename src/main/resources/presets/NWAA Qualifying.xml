@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!DOCTYPE preferences SYSTEM "http://java.sun.com/dtd/preferences.dtd">
+
+<preferences>
+    <root type="user">
+        <map>
+            <entry key="gridCount" value="8"/>
+            <entry key="participantClassNames" value=""/>
+            <entry key="participantFilter" value="ARC\d+|LM\d+|NW\d+"/>
+            <entry key="participantValidator" value="[A-Z]+\d+[A-Z]*|\d+F"/>
+        </map>
+    </root>
+</preferences>
