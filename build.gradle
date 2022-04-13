@@ -7,7 +7,7 @@ plugins {
 }
 
 mainClassName = "com.judge40.gridgenerator.GridGeneratorLauncher"
-version = "0.1.0"
+version = "0.2.0"
 sourceCompatibility = JavaVersion.VERSION_11
 
 ext.platform = osdetector.os == "osx" ? "mac"

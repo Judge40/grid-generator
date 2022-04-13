@@ -24,12 +24,13 @@ import java.time.LocalDate;
 import java.time.ZoneId;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Iterator;
 import java.util.List;
+import java.util.ListIterator;
 import java.util.Objects;
 import java.util.Random;
 import java.util.Set;
 import java.util.prefs.BackingStoreException;
-import java.util.stream.Collectors;
 
 /**
  * A helper with methods for performing grid draws.
@@ -40,11 +41,11 @@ public class GridDrawHelper {
    * Draw the grids for a given class, organizing the class's participants in to races of equal
    * size.
    *
-   * @param className The name of the class to perform a draw for.
+   * @param className     The name of the class to perform a draw for.
    * @param excludedGrids The grid numbers which have been excluded.
    * @return A list of lists of participants representing the races that have been drawn.
-   * @throws BackingStoreException If the class's participants could not be retrieved.
-   * @throws IOException If the class's participants could not be retrieved.
+   * @throws BackingStoreException  If the class's participants could not be retrieved.
+   * @throws IOException            If the class's participants could not be retrieved.
    * @throws ClassNotFoundException If the class's participants could not be retrieved.
    */
   public static List<List<List<String>>> drawGridsForClass(String className,
@@ -68,12 +69,12 @@ public class GridDrawHelper {
    * Draw the grids for a given class, organizing the class's participants in to races of equal
    * size.
    *
-   * @param className The name of the class to perform a draw for.
-   * @param heatNumber The number of the heat to perform the draw for.
+   * @param className     The name of the class to perform a draw for.
+   * @param heatNumber    The number of the heat to perform the draw for.
    * @param excludedGrids The grid numbers which have been excluded.
    * @return A list of lists of participants representing the races that have been drawn.
-   * @throws BackingStoreException If the class's participants could not be retrieved.
-   * @throws IOException If the class's participants could not be retrieved.
+   * @throws BackingStoreException  If the class's participants could not be retrieved.
+   * @throws IOException            If the class's participants could not be retrieved.
    * @throws ClassNotFoundException If the class's participants could not be retrieved.
    */
   private static List<List<String>> drawGridsForClassAndHeat(String className, int heatNumber,
@@ -107,39 +108,65 @@ public class GridDrawHelper {
    * races based on the number of available grids, races will be padded with empty strings to fill
    * the available grids.
    *
-   * @param participants The participants to split.
+   * @param participants          The participants to split.
    * @param numberOfExcludedGrids The number of excluded grids.
    * @return A list of participant lists.
    */
   private static List<List<String>> splitCombinedParticipants(List<String> participants,
     int numberOfExcludedGrids) {
-
-    // Check if a split needs to be done based on the grouping filter.
-    String groupingFilter = PreferenceHelper.getParticipantGroupingFilter();
     int groupingThreshold = PreferenceHelper.getParticipantGroupingThreshold();
-
-    List<String> ungroupedParticipants = participants.stream()
-      .filter(participant -> !participant.matches(groupingFilter))
-      .collect(Collectors.toList());
+    List<String> ungroupedParticipants = new ArrayList<>(participants);
+    List<String> groupedParticipants = applyGroupingFilter(ungroupedParticipants);
 
     List<List<String>> races = new ArrayList<>();
 
-    // If there are enough ungrouped participants to meet the threshold then split them.
-    if (!ungroupedParticipants.isEmpty() && ungroupedParticipants.size() >= groupingThreshold) {
-      participants = new ArrayList<>(participants);
-      participants.removeAll(ungroupedParticipants);
+    // If the ungrouped participants do not meet the threshold then distribute evenly between races.
+    if (!ungroupedParticipants.isEmpty() && ungroupedParticipants.size() < groupingThreshold) {
+      int groupedSize = groupedParticipants.size();
+      int ungroupedSize = ungroupedParticipants.size();
+      int spacing = (int) Math.ceil((double) (groupedSize + ungroupedSize) / ungroupedSize);
+
+      for (ListIterator<String> iterator = ungroupedParticipants.listIterator();
+          iterator.hasNext(); ) {
+        groupedParticipants.add(iterator.nextIndex() * spacing, iterator.next());
+      }
+
+      races.addAll(splitGroupedParticipants(groupedParticipants, numberOfExcludedGrids));
+    } else {
+      races.addAll(splitGroupedParticipants(groupedParticipants, numberOfExcludedGrids));
       races.addAll(splitGroupedParticipants(ungroupedParticipants, numberOfExcludedGrids));
     }
 
-    races.addAll(0, splitGroupedParticipants(participants, numberOfExcludedGrids));
     return races;
+  }
+
+  /**
+   * Remove any participants matching the grouping filter.
+   *
+   * @param participants The participants to filter.
+   * @return The removed participants.
+   */
+  private static List<String> applyGroupingFilter(List<String> participants) {
+    String groupingFilter = PreferenceHelper.getParticipantGroupingFilter();
+    List<String> groupedParticipants = new ArrayList<>();
+
+    for (Iterator<String> iterator = participants.iterator(); iterator.hasNext(); ) {
+      String participant = iterator.next();
+
+      if (participant.matches(groupingFilter)) {
+        groupedParticipants.add(participant);
+        iterator.remove();
+      }
+    }
+
+    return groupedParticipants;
   }
 
   /**
    * Splits the pre-grouped participants in to roughly equal races based on the number of available
    * grids, races will be padded with empty strings to fill the available grids.
    *
-   * @param participants The participants to split.
+   * @param participants          The participants to split.
    * @param numberOfExcludedGrids The number of excluded grids.
    * @return A list of participant lists.
    */
@@ -190,7 +217,7 @@ public class GridDrawHelper {
   /**
    * Randomize the participants list.
    *
-   * @param participants The participants to randomize.
+   * @param participants  The participants to randomize.
    * @param excludedGrids The grid numbers which have been excluded.
    */
   private static void randomizeParticipants(List<String> participants, int heatNumber,
