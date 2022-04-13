@@ -342,44 +342,44 @@ class GridDrawHelperTest {
     MatcherAssert.assertThat("The race participant did not match the expected value.", race.get(2),
       CoreMatchers.is(""));
     MatcherAssert.assertThat("The race participant did not match the expected value.", race.get(3),
-      CoreMatchers.is("ungrouped4"));
-    MatcherAssert.assertThat("The race participant did not match the expected value.", race.get(4),
       CoreMatchers.is("grouped8"));
-    MatcherAssert.assertThat("The race participant did not match the expected value.", race.get(5),
-      CoreMatchers.is("ungrouped1"));
-    MatcherAssert.assertThat("The race participant did not match the expected value.", race.get(6),
-      CoreMatchers.is("ungrouped3"));
-    MatcherAssert.assertThat("The race participant did not match the expected value.", race.get(7),
-      CoreMatchers.is("grouped1"));
-    MatcherAssert.assertThat("The race participant did not match the expected value.", race.get(8),
-      CoreMatchers.is("ungrouped5"));
-    MatcherAssert.assertThat("The race participant did not match the expected value.", race.get(9),
+    MatcherAssert.assertThat("The race participant did not match the expected value.", race.get(4),
       CoreMatchers.is("ungrouped6"));
+    MatcherAssert.assertThat("The race participant did not match the expected value.", race.get(5),
+      CoreMatchers.is("ungrouped5"));
+    MatcherAssert.assertThat("The race participant did not match the expected value.", race.get(6),
+      CoreMatchers.is("grouped1"));
+    MatcherAssert.assertThat("The race participant did not match the expected value.", race.get(7),
+      CoreMatchers.is("ungrouped1"));
+    MatcherAssert.assertThat("The race participant did not match the expected value.", race.get(8),
+      CoreMatchers.is("grouped5"));
+    MatcherAssert.assertThat("The race participant did not match the expected value.", race.get(9),
+      CoreMatchers.is("ungrouped3"));
 
     race = races.get(1);
     MatcherAssert
       .assertThat("The number of race participants did not match the expected value.", race.size(),
         CoreMatchers.is(10));
     MatcherAssert.assertThat("The race participant did not match the expected value.", race.get(0),
-      CoreMatchers.is("grouped7"));
+      CoreMatchers.is("grouped6"));
     MatcherAssert.assertThat("The race participant did not match the expected value.", race.get(1),
-      CoreMatchers.is("ungrouped8"));
+      CoreMatchers.is("ungrouped9"));
     MatcherAssert.assertThat("The race participant did not match the expected value.", race.get(2),
       CoreMatchers.is(""));
     MatcherAssert.assertThat("The race participant did not match the expected value.", race.get(3),
-      CoreMatchers.is("grouped6"));
+      CoreMatchers.is("grouped9"));
     MatcherAssert.assertThat("The race participant did not match the expected value.", race.get(4),
       CoreMatchers.is("ungrouped2"));
     MatcherAssert.assertThat("The race participant did not match the expected value.", race.get(5),
-      CoreMatchers.is("grouped4"));
-    MatcherAssert.assertThat("The race participant did not match the expected value.", race.get(6),
-      CoreMatchers.is("grouped5"));
-    MatcherAssert.assertThat("The race participant did not match the expected value.", race.get(7),
-      CoreMatchers.is("ungrouped9"));
-    MatcherAssert.assertThat("The race participant did not match the expected value.", race.get(8),
-      CoreMatchers.is("grouped9"));
-    MatcherAssert.assertThat("The race participant did not match the expected value.", race.get(9),
       CoreMatchers.is("grouped3"));
+    MatcherAssert.assertThat("The race participant did not match the expected value.", race.get(6),
+      CoreMatchers.is("grouped7"));
+    MatcherAssert.assertThat("The race participant did not match the expected value.", race.get(7),
+      CoreMatchers.is("ungrouped4"));
+    MatcherAssert.assertThat("The race participant did not match the expected value.", race.get(8),
+      CoreMatchers.is("ungrouped8"));
+    MatcherAssert.assertThat("The race participant did not match the expected value.", race.get(9),
+      CoreMatchers.is("grouped4"));
   }
 
   /**

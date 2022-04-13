@@ -154,9 +154,9 @@ public class DrawGridsController {
   /**
    * Perform a grid draw and populate the drawn grids display with the results.
    *
-   * @throws BackingStoreException If the participants could not be retrieved.
+   * @throws BackingStoreException  If the participants could not be retrieved.
    * @throws ClassNotFoundException If the participants could not be retrieved.
-   * @throws IOException If the participants could not be retrieved.
+   * @throws IOException            If the participants could not be retrieved.
    */
   private void initializeDrawnGridsDisplay()
     throws BackingStoreException, ClassNotFoundException, IOException {
@@ -280,7 +280,14 @@ public class DrawGridsController {
 
     // Print the tab content using default printer and settings.
     PrinterJob printerJob = PrinterJob.createPrinterJob();
-    printerJob.printPage(tabContent);
-    printerJob.endJob();
+    boolean doPrint = printerJob.showPrintDialog(tabContent.getScene().getWindow());
+
+    if (doPrint) {
+      boolean success = printerJob.printPage(tabContent);
+
+      if (success) {
+        printerJob.endJob();
+      }
+    }
   }
 }
